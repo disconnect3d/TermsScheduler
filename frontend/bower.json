@@ -1,0 +1,14 @@
+{
+  "name": "TermsScheluder-fe",
+  "devDependencies": {
+    "angular-mocks": "~1.5.2"
+  },
+  "dependencies": {
+    "angular": "~1.5.2",
+    "bootstrap": "~3.3.6",
+    "angular-bootstrap": "~0.10.0",
+    "angular-ui-router": "~0.2",
+    "angular-cookies": "~1.5.2",
+    "js-base64": "^2.1.9"
+  }
+}
