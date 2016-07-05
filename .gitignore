@@ -1,0 +1,6 @@
+*.log
+*.pyc
+__pycache__
+
+# PyCharm project files
+.idea/
