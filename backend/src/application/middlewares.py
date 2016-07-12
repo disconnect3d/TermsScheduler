@@ -16,10 +16,13 @@ def check_valid_login():
     Requires to be logged in.
     To make an endpoint public, use `public_endpoint` decorator.
     """
-    import pdb
-    pdb.set_trace()
-    login_valid = 'user' in session  # or whatever you use to check valid login
-    a = g.user
+    print("TODO: check_validate_login")
+    pass
+
+    #import pdb
+    #pdb.set_trace()
+    #login_valid = 'user' in session  # or whatever you use to check valid login
+    #a = g.user
     #
     # if (request.endpoint and  'static' not in request.endpoint and
     #     not login_valid and

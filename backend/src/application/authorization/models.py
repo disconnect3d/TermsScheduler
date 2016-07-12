@@ -15,7 +15,7 @@ class User(db.Model):
     first_name = db.Column(db.String(64))
     last_name = db.Column(db.String(64))
 
-    is_superuser = db.Column(db.Boolean)
+    is_admin = db.Column(db.Boolean)
 
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)

@@ -4,3 +4,6 @@ __pycache__
 
 # PyCharm project files
 .idea/
+
+# SQLite db
+*.db
