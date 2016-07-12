@@ -8,19 +8,21 @@ Decorating middleware function with `@app.before_request` won't work if this fil
 anywhere in between `manage.py runserver` command and `manager.run()`.
 So just to be safe, call `app.XXX_request(middleware_func)` in `create_app`.
 """
-from flask import session, g
+from flask import session, g, request
+
+from application import auth
 
 
+@auth.login_required
 def check_valid_login():
     """
     Requires to be logged in.
     To make an endpoint public, use `public_endpoint` decorator.
     """
     print("TODO: check_validate_login")
-    pass
+    #print(request)
+    print(request.endpoint)
 
-    #import pdb
-    #pdb.set_trace()
     #login_valid = 'user' in session  # or whatever you use to check valid login
     #a = g.user
     #

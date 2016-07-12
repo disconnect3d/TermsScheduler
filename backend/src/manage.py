@@ -7,6 +7,8 @@ from flask.ext.script import Manager, Shell, Server
 from application import create_app, db
 
 # use dev config if env var is not set
+from commands.create_admin import CreateAdmin
+
 config_file_path = os.environ.get('APP_CONFIG', None) or '../dev_config.py'
 
 app = create_app(config_file_path)
@@ -16,6 +18,7 @@ migrate = Migrate(app, db)
 
 manager.add_command('server', Server())
 manager.add_command('db', MigrateCommand)
+manager.add_command('create_admin', CreateAdmin())
 
 
 def _make_context():

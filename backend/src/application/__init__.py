@@ -9,7 +9,7 @@ auth = HTTPBasicAuth()
 def create_app(config):
     """
     Application Factories - http://flask.pocoo.org/docs/patterns/appfactories/
-    :param config: Flask config py file.
+    :param config: Path to config.py file.
     """
 
     app = Flask(__name__)
