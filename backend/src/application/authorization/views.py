@@ -21,6 +21,8 @@ def new_user():
     json_data = request.get_json()
     username = json_data.get('username')
     password = json_data.get('password')
+    first_name = json_data.get('firstName')
+    last_name = json_data.get('lastName')
 
     if username is None or password is None:
         print("Abort - username or password is None.")
@@ -29,7 +31,7 @@ def new_user():
         print("Abort - user already exists.")
         abort(400)  # existing user
 
-    user = User(username=username)
+    user = User(username=username, first_name=first_name, last_name=last_name)
     user.hash_password(password)
     db.session.add(user)
     db.session.commit()
