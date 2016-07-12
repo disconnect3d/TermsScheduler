@@ -5,8 +5,8 @@
         .module('TermsScheduler')
         .factory('UserService', UserService);
 
-    UserService.$inject = ['$http'];
-    function UserService($http) {
+    UserService.$inject = ['$http','settings'];
+    function UserService($http, settings) {
         var service = {};
 
         service.GetAll = GetAll;
@@ -14,7 +14,7 @@
         service.GetByUsername = GetByUsername;
         service.Create = Create;
         service.Update = Update;
-        service.Delete = Delete;
+        // service.Delete = Delete;
 
         return service;
 
@@ -31,7 +31,7 @@
         }
 
         function Create(user) {
-            return $http.post('/api/users', user).then(handleSuccess, handleError('Error creating user'));
+            return $http.post(settings.backendUrl + 'users', user).then(handleSuccess, handleError('Error creating user'));
         }
 
         function Update(user) {

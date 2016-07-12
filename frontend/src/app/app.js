@@ -6,7 +6,9 @@ angular.module('TermsScheduler', [
     ])
 
     //http://plnkr.co/edit/tg25kr?p=preview
-
+    .constant("settings", {
+        backendUrl: "http://localhost:5000/api/"
+    })
     .config(function myAppConfig($stateProvider, $urlRouterProvider) {
         $stateProvider
             .state('login', {
