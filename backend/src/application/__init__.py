@@ -17,8 +17,8 @@ def create_app(config):
     db.init_app(app)
 
     # Register middlewares here
-    from application.middlewares import check_valid_login
-    app.before_request(check_valid_login)
+    from application.middlewares import require_login
+    app.before_request(require_login)
 
     # Register blueprints here
     from application.authorization.views import bp as bp_auth
