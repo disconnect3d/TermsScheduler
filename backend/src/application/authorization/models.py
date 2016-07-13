@@ -9,13 +9,14 @@ from application import db, auth
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32), index=True)
-    password_hash = db.Column(db.String(64))
+    username = db.Column(db.String(32), index=True, nullable=False)
+    password_hash = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String, nullable=False)
 
-    first_name = db.Column(db.String(64))
-    last_name = db.Column(db.String(64))
+    first_name = db.Column(db.String(64), nullable=False)
+    last_name = db.Column(db.String(64), nullable=False)
 
-    is_admin = db.Column(db.Boolean)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
