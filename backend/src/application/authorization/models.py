@@ -6,6 +6,13 @@ from passlib.apps import custom_app_context as pwd_context
 from application import db, auth
 
 
+UserGroup = db.Table(
+    'users_groups',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('group_id', db.Integer, db.ForeignKey('groups.id'), primary_key=True)
+)
+
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -38,6 +45,21 @@ class User(db.Model):
         except BadSignature:
             return None  # invalid token
         return User.query.get(data['id'])
+
+    def __repr__(self):
+        return "{id}: '{first_name}' '{last_name}', '{email}', admin: {is_admin}".format(**self.__dict__)
+
+
+class Group(db.Model):
+    __tablename__ = 'groups'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True, nullable=False)
+
+    users = db.relationship("User", secondary=UserGroup,
+                            backref=db.backref('groups', lazy='dynamic'))
+
+    def __repr__(self):
+        return "{id}: '{name}'".format(**self.__dict__)
 
 
 @auth.verify_password
