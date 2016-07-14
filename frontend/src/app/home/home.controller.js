@@ -29,8 +29,8 @@
 
         function loadAllUsers() {
             UserService.GetAll()
-                .then(function (users) {
-                    vm.allUsers = users;
+                .then(function (data) {
+                    vm.allUsers = data.users;
                 });
         }
 

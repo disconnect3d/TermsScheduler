@@ -19,7 +19,7 @@
         return service;
 
         function GetAll() {
-            return $http.get('/api/users').then(handleSuccess, handleError('Error getting all users'));
+            return $http.get(settings.backendUrl + 'allusers').then(handleSuccess, handleError('Error getting all users'));
         }
 
         function GetById(id) {
