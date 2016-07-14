@@ -15,6 +15,7 @@ def db(app):
     _db = alchemy_db
     _db.create_all()
     yield _db
+    _db.session.rollback()
     _db.drop_all()
 
 
@@ -23,7 +24,7 @@ def user(db):
     """
     Creates simple test:test user account.
     """
-    u = User(username='test_user')
+    u = User(username='test_user', email='test@test.test', first_name='first_name', last_name='last_name')
     u.hash_password('test_password')
 
     db.session.add(u)
@@ -32,7 +33,7 @@ def user(db):
 
 def _auth_method(user, pwd):
     # basic auth uses base64 user:pass
-    return "Basic {}".format(base64.b64encode(bytes('{}:{}'.format(user, pwd), 'utf-8')).decode('utf-8'))
+    return "Basic {}".format(base64.b64encode(bytes('{}:{}'.format(user, pwd).encode('utf-8'))).decode('utf-8'))
 
 
 def test_login_no_credentials_unauthorized(db, client):
@@ -52,5 +53,5 @@ def test_login_authorized(user, client):
 
     res = client.get(url_for('api.get_auth_token'), headers=[('Authorization', valid_auth)])
     assert res.status_code == 200
-    assert res.json.keys() == {'duration', 'token'}
+    assert set(res.json.keys()) == {'duration', 'token'}
     assert res.json['duration'] == 600
