@@ -27,7 +27,20 @@ def _make_context():
     stuff without importing it explicitly.
     """
 
-    context_dict = {'app': app, 'db': db}
+    def logsql():
+        """
+        Enables/disables logging of SQLALchemy sql queries.
+        """
+        import logging
+        logging.basicConfig()
+        logger = logging.getLogger('sqlalchemy.engine')
+
+        if logger.level == logging.NOTSET:
+            logger.setLevel(logging.INFO)
+        else:
+            logger.setLevel(logging.NOTSET)
+
+    context_dict = {'app': app, 'db': db, 'logsql': logsql}
 
     def print_name(name, desc):
         name = colored(name, 'blue', attrs=['bold'])
@@ -36,6 +49,7 @@ def _make_context():
     cprint('Names already imported to the shell (by `_make_context`):', 'yellow', attrs=['bold'])
     print_name('app', 'Flask application')
     print_name('db', 'flask.sqlalchemy database object')
+    print_name('logsql', 'utility function to enable/disable logging of SQLAlchemy SQL queries')
 
     # Imports models from specified modules
     from application.authorization import models as authorization_models
