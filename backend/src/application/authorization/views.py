@@ -1,8 +1,9 @@
-from application import db, auth
+from application import db
 from flask import request, jsonify, url_for, g, Blueprint
 from flask.ext.restful import abort
 
 from application.authorization.models import User
+from application.decorators import public_endpoint
 
 
 bp = Blueprint('api', __name__, url_prefix='/api')
@@ -15,6 +16,7 @@ def get_auth_token():
 
 
 @bp.route('/users', methods=['POST'])
+@public_endpoint
 def new_user():
     json_data = request.get_json()
     username = json_data.get('username')
@@ -42,8 +44,3 @@ def get_user(id):
         abort(400)
     return jsonify({'username': user.username})
 
-
-@bp.route('/resource')
-@auth.login_required
-def get_resource():
-    return jsonify({'data': 'Hello, %s!' % g.user.username})

@@ -8,15 +8,23 @@ Decorating middleware function with `@app.before_request` won't work if this fil
 anywhere in between `manage.py runserver` command and `manager.run()`.
 So just to be safe, call `app.XXX_request(middleware_func)` in `create_app`.
 """
+from flask import current_app, request
 
 from application import auth
 
 
-@auth.login_required
+def _require_login_impl():
+    pass
+
+# Because the `auth.login_required` is a function decorator,
+# and the proper logic lies in the wrapping function, it has to be done as it is ...
+_check_auth = auth.login_required(_require_login_impl)
+
+
 def require_login():
     """
     Requires to be logged in.
     To make an endpoint public, use `public_endpoint` decorator.
     """
-    # The `@auth.login_required` decoration is enough to make it require login.
-    pass
+    if not getattr(current_app.view_functions.get(request.endpoint, None), 'is_public', False):
+        return _check_auth()
