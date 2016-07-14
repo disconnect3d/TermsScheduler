@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+import inspect
 import os
 
 from flask.ext.migrate import MigrateCommand, Migrate
-from flask.ext.script import Manager, Shell, Server
+from flask.ext.script import Manager, Shell
+from termcolor import colored, cprint
 
 from application import create_app, db
-
 # use dev config if env var is not set
 from commands.create_admin import CreateAdmin
 
@@ -25,7 +26,33 @@ def _make_context():
     Return context dict for a shell session so one can access
     stuff without importing it explicitly.
     """
-    return {'app': app, 'db': db}
+
+    context_dict = {'app': app, 'db': db}
+
+    def print_name(name, desc):
+        name = colored(name, 'blue', attrs=['bold'])
+        print('  {:15s} - {}'.format(name, desc))
+
+    cprint('Names already imported to the shell (by `_make_context`):', 'yellow', attrs=['bold'])
+    print_name('app', 'Flask application')
+    print_name('db', 'flask.sqlalchemy database object')
+
+    # Imports models from specified modules
+    from application.authorization import models as authorization_models
+
+    cprint('Models:', 'yellow', attrs=['bold'])
+    for model in (authorization_models,):
+        for attr_name in dir(model):
+            attr = getattr(model, attr_name)
+
+            if inspect.isclass(attr) and issubclass(attr, db.Model):
+                context_dict[attr.__name__] = attr
+                print_name(
+                    attr.__name__,
+                    'imported from ' + colored(model.__name__ + '.' + attr.__name__, 'green')
+                )
+
+    return context_dict
 
 
 manager.add_command('shell', Shell(make_context=_make_context))
