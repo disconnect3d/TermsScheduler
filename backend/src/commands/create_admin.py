@@ -9,12 +9,15 @@ class CreateAdmin(Command):
     """Creates admin account."""
 
     def run(self):
-        username = prompt('Input username: ')
-        password = prompt_pass('Input password: ')
-        email = prompt('Email: ')
+        username = prompt('Input username')
+        password = prompt_pass('Input password')
 
-        first_name = prompt('First name (default: ""): ', default='')
-        last_name = prompt('Last name (default: ""): ', default='')
+        email = ''
+        while '@' not in email:
+            email = prompt('Email (requires "@")')
+
+        first_name = prompt('First name (default: "")', default='')
+        last_name = prompt('Last name (default: "")', default='')
 
         u = User(username=username, first_name=first_name, last_name=last_name, email=email, is_admin=True)
         u.hash_password(password)

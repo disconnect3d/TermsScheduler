@@ -16,7 +16,6 @@ app = create_app(config_file_path)
 manager = Manager(app)
 migrate = Migrate(app, db)
 
-manager.add_command('server', Server())
 manager.add_command('db', MigrateCommand)
 manager.add_command('create_admin', CreateAdmin())
 
