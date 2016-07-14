@@ -1,39 +1,14 @@
-import base64
-
-import pytest
 from flask import url_for
 
-from application import db as alchemy_db
-from application.authorization.models import User
+from tests.conftest import _auth_method
 
 
-@pytest.yield_fixture(scope='function')
-def db(app):
-    """
-    Creates database before a test and destroys it afterwards.
-    """
-    _db = alchemy_db
-    _db.create_all()
-    yield _db
-    _db.session.rollback()
-    _db.drop_all()
+def test_app_endpoints_require_login(app, db, client):
+    @app.route('/api/test_require_login')
+    def test_require_login():
+        pass
 
-
-@pytest.fixture
-def user(db):
-    """
-    Creates simple test:test user account.
-    """
-    u = User(username='test_user', email='test@test.test', first_name='first_name', last_name='last_name')
-    u.hash_password('test_password')
-
-    db.session.add(u)
-    db.session.commit()
-
-
-def _auth_method(user, pwd):
-    # basic auth uses base64 user:pass
-    return "Basic {}".format(base64.b64encode(bytes('{}:{}'.format(user, pwd).encode('utf-8'))).decode('utf-8'))
+    assert client.get(url_for('test_require_login')).status_code == 401
 
 
 def test_login_no_credentials_unauthorized(db, client):
@@ -48,10 +23,29 @@ def test_login_bad_password_unauthorized(user, client):
     assert res.status_code == 401
 
 
-def test_login_authorized(user, client):
-    valid_auth = _auth_method('test_user', 'test_password')
+def test_login_authorized_by_token(valid_auth_header, user, client):
+    res = client.get(url_for('api.get_auth_token'), headers=[valid_auth_header])
 
-    res = client.get(url_for('api.get_auth_token'), headers=[('Authorization', valid_auth)])
     assert res.status_code == 200
     assert set(res.json.keys()) == {'duration', 'token'}
+    assert res.json['token'] == user.generate_auth_token(600)
     assert res.json['duration'] == 600
+
+
+def test_login_authorized(user, client):
+    valid_auth = _auth_method('test_user', 'test_password')
+    test_login_authorized_by_token(('Authorization', valid_auth), user, client)
+
+
+def test_get_groups_user_with_no_groups(groups, valid_auth_header, client):
+    res = client.get(url_for('api.get_groups'), headers=[valid_auth_header])
+
+    assert res.status_code == 200
+    assert res.json == {u'groups': []}
+
+
+def test_get_groups_user_with_groups(user_with_2_groups, valid_auth_header, client):
+    res = client.get(url_for('api.get_groups'), headers=[valid_auth_header])
+
+    assert res.status_code == 200
+    assert res.json == {u'groups': [u'group1', u'group2']}
