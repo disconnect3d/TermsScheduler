@@ -2,9 +2,8 @@ from application import db
 from flask import request, jsonify, url_for, g, Blueprint
 from flask.ext.restful import abort
 
-from application.authorization.models import User
-from application.decorators import public_endpoint
-
+from application.authorization.models import User, Group
+from application.decorators import public_endpoint, require_admin
 
 bp = Blueprint('api', __name__)
 
@@ -50,3 +49,14 @@ def get_user(id):
 @bp.route('/api/groups')
 def get_groups():
     return jsonify({'groups': [grp.name for grp in g.user.groups]})
+
+
+@bp.route('/api/groups', methods=['POST'])
+@require_admin
+def new_group():
+    name = request.get_json()['name']
+
+    db.session.add(Group(name=name))
+    db.session.commit()
+
+    return '', 201
