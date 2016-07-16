@@ -46,3 +46,7 @@ def get_user(id):
         abort(400)
     return jsonify({'username': user.username})
 
+
+@bp.route('/api/groups')
+def get_groups():
+    return jsonify({'groups': [grp.name for grp in g.user.groups]})

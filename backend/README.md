@@ -20,3 +20,6 @@ so that's the place where you can look for/register new urls and middlewares.
 * All API endpoints by default requires user to be logged in 
 (this is due to `require_login` middleware, which is registered in `create_app`), 
 in order to make url being public, decorate it with `public_endpoint`.
+
+* The [orm examples](orm_examples.md) contains `python manage.py shell` logs showing 
+some usage of `SQLAlchemy`.
