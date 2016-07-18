@@ -18,9 +18,14 @@
 
         function login() {
             vm.dataLoading = true;
-            AuthenticationService.Login(vm.username, vm.password, function (response) {
-                $location.path('/');
-            });
+            AuthenticationService.Login(vm.username, vm.password,
+                function () {
+                    vm.dataLoading = false;
+                    $location.path('/');
+                },
+                function () {
+                    vm.dataLoading = false;
+                });
         }
     }
 })();

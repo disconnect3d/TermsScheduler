@@ -48,7 +48,7 @@ angular.module('TermsScheduler', [
 .controller('AppCtrl', ($scope, $location) ->
   $scope.pageTitle = 'Terms Scheduler'
   $scope.$on('$stateChangeSuccess',(event, toState, toParams, fromState, fromParams) ->
-    if angular.isDefined(toState.data.pageTitle)
-      $scope.pageTitle = toState.data.pageTitle + ' | Terms Scheduler'
+    if angular.isDefined(toState.name)
+      $scope.pageTitle = toState.name + ' | Terms Scheduler'
   )
 )

@@ -225,7 +225,7 @@ module.exports = function (grunt) {
         coffee: {
             source: {
                 options: {
-                    bare: true
+                    // bare: true
                 },
                 expand: true,
                 cwd: '.',
