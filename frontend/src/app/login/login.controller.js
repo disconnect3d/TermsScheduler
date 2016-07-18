@@ -21,7 +21,6 @@
             AuthenticationService.Login(vm.username, vm.password, function (response) {
                 $location.path('/');
             });
-        };
+        }
     }
-
 })();
