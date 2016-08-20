@@ -1,9 +1,9 @@
-from application import db
 from flask import request, jsonify, url_for, g, Blueprint
 from flask.ext.restful import abort
 
-from application.authorization.models import User, Group
+from application import db
 from application.decorators import public_endpoint, require_admin
+from application.models import User, Group
 
 bp = Blueprint('api', __name__)
 
@@ -60,3 +60,13 @@ def new_group():
     db.session.commit()
 
     return '', 201
+
+
+@bp.route('/api/subjects')
+def get_subjects():
+    """
+
+    :return: List of subjects that can be chosen by particular user.
+    If the user `is_admin == True`, this should return all subjects.
+    """
+    return jsonify({'subjects': []})

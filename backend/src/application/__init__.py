@@ -1,9 +1,8 @@
 from flask import Flask
-from flask.ext.httpauth import HTTPBasicAuth
-from flask.ext.sqlalchemy import SQLAlchemy
-
 from flask.ext.admin import Admin
 from flask.ext.admin.contrib.sqla import ModelView
+from flask.ext.httpauth import HTTPBasicAuth
+from flask.ext.sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 auth = HTTPBasicAuth()
@@ -24,12 +23,12 @@ def create_app(config):
     app.before_request(require_login)
 
     # Register blueprints here
-    from application.authorization.views import bp as bp_auth
+    from application.views import bp as bp_auth
     app.register_blueprint(bp_auth)
 
     # Admin panel
-    from application.authorization.models import User, Group
-    from application.authorization.admin import UserAdminView
+    from application.models import User, Group
+    from application.admin import UserAdminView
 
     admin = Admin(app)
     admin.add_view(UserAdminView(User, db.session))

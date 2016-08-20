@@ -4,7 +4,7 @@ import pytest
 
 from application import create_app
 from application import db as alchemy_db
-from application.authorization.models import User, Group
+from application.models import User, Group
 
 
 @pytest.fixture

@@ -3,8 +3,8 @@ import json
 import pytest
 from flask import url_for
 
-from application.authorization.models import Group
 from application.decorators import public_endpoint, require_admin
+from application.models import Group
 from tests.conftest import calc_auth_header_value
 
 

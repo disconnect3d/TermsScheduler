@@ -12,6 +12,12 @@ UserGroup = db.Table(
     db.Column('group_id', db.Integer, db.ForeignKey('groups.id'), primary_key=True)
 )
 
+SubjectGroup = db.Table(
+    'subjects_groups',
+    db.Column('subject_id', db.Integer, db.ForeignKey('subjects.id'), primary_key=True),
+    db.Column('group_id', db.Integer, db.ForeignKey('groups.id'), primary_key=True)
+)
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -58,8 +64,34 @@ class Group(db.Model):
     users = db.relationship("User", secondary=UserGroup,
                             backref=db.backref('groups', lazy='dynamic'))
 
+    subjects = db.relationship("Subject", secondary=SubjectGroup,
+                               backref=db.backref('groups', lazy='dynamic'))
+
     def __repr__(self):
         return "{id}: '{name}'".format(**self.__dict__)
+
+
+class Subject(db.Model):
+    __tablename__ = 'subjects'
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(64), nullable=False)
+    description = db.Column(db.String(2048), nullable=False, default='')
+    syllabus_url = db.Column(db.String(256), nullable=False, default='')
+
+    # European Credit Transfer and Accumulation System points
+    # see https://en.wikipedia.org/wiki/European_Credit_Transfer_and_Accumulation_System
+    ects = db.Column(db.Integer, nullable=False, default=0)
+
+    minimum_members = db.Column(db.Integer, nullable=False, default=5)
+    maximum_members = db.Column(db.Integer, nullable=False, default=15)
+
+    # hours
+    lecture_hours = db.Column(db.Integer, nullable=False, default=0)
+    lab_hours = db.Column(db.Integer, nullable=False, default=0)
+    exercises_hours = db.Column(db.Integer, nullable=False, default=0)
+    project_hours = db.Column(db.Integer, nullable=False, default=0)
+    seminar_hours = db.Column(db.Integer, nullable=False, default=0)
 
 
 @auth.verify_password
