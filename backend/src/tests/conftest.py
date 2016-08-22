@@ -12,7 +12,7 @@ def app():
     return create_app('../test_config.py')
 
 
-@pytest.yield_fixture(scope='function')
+@pytest.yield_fixture
 def db(app):
     """
     Creates database before a test and destroys it afterwards.

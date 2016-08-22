@@ -3,7 +3,7 @@ from flask.ext.restful import abort
 
 from application import db
 from application.decorators import public_endpoint, require_admin
-from application.models import User, Group
+from application.models import User, Group, Subject, SubjectSignup
 
 bp = Blueprint('api', __name__)
 
@@ -65,8 +65,23 @@ def new_group():
 @bp.route('/api/subjects')
 def get_subjects():
     """
-
     :return: List of subjects that can be chosen by particular user.
-    If the user `is_admin == True`, this should return all subjects.
     """
-    return jsonify({'subjects': []})
+    user_group_ids = [i.id for i in g.user.groups]
+    subjects = list(Subject.query.join(Subject.groups).filter(Group.id.in_(user_group_ids)).order_by(Subject.name))
+
+    return jsonify({'subjects': subjects})
+
+
+@bp.route('/api/subjects_signup/', methods=['GET', 'POST'])
+def signup_subject(subject_id):
+    """
+
+    :param subject_id:
+    :return:
+    """
+    if request.method == 'GET':
+        ss = list(SubjectSignup.query.filter(SubjectSignup.user_id == g.user.id))
+        return jsonify({'subjects_signup': ss})
+    elif request.method == 'POST':
+        pass

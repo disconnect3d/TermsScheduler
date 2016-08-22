@@ -94,6 +94,12 @@ class Subject(db.Model):
     seminar_hours = db.Column(db.Integer, nullable=False, default=0)
 
 
+class SubjectSignup(db.Model):
+    __tablename__ = 'subjects_signup'
+    subject_id = db.Column(db.Integer, db.ForeignKey(Subject.id), primary_key=True),
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
+
+
 @auth.verify_password
 def verify_password(username_or_token, password):
     # first try to authenticate by token

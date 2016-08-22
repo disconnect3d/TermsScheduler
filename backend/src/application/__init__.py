@@ -18,6 +18,9 @@ def create_app(config):
     app.config.from_pyfile(config)
     db.init_app(app)
 
+    from application.json_encoder import AlchemyEncoder
+    app.json_encoder = AlchemyEncoder
+
     # Register middlewares here
     from application.middlewares import require_login
     app.before_request(require_login)
