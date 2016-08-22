@@ -24,13 +24,8 @@ def url_get_auth_token():
 
 
 @pytest.fixture(scope='session')
-def url_get_groups():
-    return url_for('api.get_groups')
-
-
-@pytest.fixture(scope='session')
-def url_new_group():
-    return url_for('api.new_group')
+def url_grouplist():
+    return url_for('grouplist')
 
 
 def test_app_endpoints_require_login(app, db, client):
@@ -88,38 +83,38 @@ def test_login_authorized(url_get_auth_token, user, client):
     test_login_authorized_by_token(url_get_auth_token, ('Authorization', valid_auth), user, client)
 
 
-def test_get_groups_user_with_no_groups(url_get_groups, groups, valid_auth_header, client):
-    res = client.get(url_get_groups, headers=[valid_auth_header])
+def test_get_groups_user_with_no_groups(url_grouplist, groups, valid_auth_header, client):
+    res = client.get(url_grouplist, headers=[valid_auth_header])
 
     assert res.status_code == 200
     assert res.json == {u'groups': []}
 
 
-def test_get_groups_user_with_groups(url_get_groups, user_with_2_groups, valid_auth_header, client):
-    res = client.get(url_get_groups, headers=[valid_auth_header])
+def test_get_groups_user_with_groups(url_grouplist, user_with_2_groups, valid_auth_header, client):
+    res = client.get(url_grouplist, headers=[valid_auth_header])
 
     assert res.status_code == 200
     assert res.json == {u'groups': [u'group1', u'group2']}
 
 
-def test_new_group_require_admin(url_new_group, valid_auth_header, client):
-    res = client.post(url_new_group, headers=[valid_auth_header],
+def test_new_group_require_admin(url_grouplist, valid_auth_header, client):
+    res = client.post(url_grouplist, headers=[valid_auth_header],
                       data=json.dumps({'name': 'test_group'}),
                       content_type='application/json')
     assert res.status_code == 401
 
 
-def test_new_group_create(url_new_group, valid_admin_auth_header, db, client):
+def test_new_group_create(url_grouplist, valid_admin_auth_header, db, client):
     group_name = 'test_group'
 
     assert Group.query.count() == 0
 
-    res = client.post(url_new_group, headers=[valid_admin_auth_header],
+    res = client.post(url_grouplist, headers=[valid_admin_auth_header],
                       data=json.dumps({'name': group_name}),
                       content_type='application/json')
 
     assert res.status_code == 201
-    assert res.data == b''
+    assert res.json == {}
 
     groups = Group.query.all()
     assert len(groups) == 1

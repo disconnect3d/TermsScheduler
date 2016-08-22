@@ -34,7 +34,7 @@ def subjects(db, groups):
 
 @pytest.fixture(scope='session')
 def url_get_subjects():
-    return url_for('api.get_subjects')
+    return url_for('subjectlist')
 
 
 def subject_dict(i):
