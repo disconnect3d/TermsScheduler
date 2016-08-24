@@ -98,6 +98,17 @@ def test_create_user(url_userlist, db, client):
     assert res.headers.get('Location').endswith('/api/users/1') == True
 
 
+def test_get_user_unauthorized(db, client):
+    res = client.get(url_for('userresource', id=1), content_type='application/json')
+    assert res.status_code == 401
+
+
+def test_get_user_authorized(valid_auth_header, db, client):
+    res = client.get(url_for('userresource', id=1), content_type='application/json', headers=[valid_auth_header])
+    assert res.status_code == 200
+    assert res.json == {'username': 'test_user'}
+
+
 def test_login_no_credentials_unauthorized(url_get_auth_token, db, client):
     res = client.get(url_get_auth_token)
     assert res.status_code == 401
