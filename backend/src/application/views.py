@@ -69,15 +69,23 @@ class SubjectList(Resource):
         :return: List of subjects that can be chosen by particular user.
         """
         user_group_ids = [i.id for i in g.user.groups]
-        subjects = list(Subject.query.join(Subject.groups).filter(Group.id.in_(user_group_ids)).order_by(Subject.name))
+        subjects = list(User.get_subjects(user_group_ids))
 
         return jsonify({'subjects': subjects})
 
 
+subject_signup_parser = reqparse.RequestParser(bundle_errors=True)
+subject_signup_parser.add_argument('subject_id', type=int, required=True)
+
+
 class SubjectSignupList(Resource):
     def get(self):
-        ss = list(SubjectSignup.query.filter(SubjectSignup.user_id == g.user.id))
+        ss = list(SubjectSignup.query.filter(SubjectSignup.user_id == g.user.id).join(Subject).order_by(Subject.name))
         return jsonify({'subjects_signup': ss})
 
     def post(self):
-        pass
+        args = subject_signup_parser.parse_args(strict=True)
+
+        if User.get_subjects([g.user.id]).filter(Subject.id == args.subject_id).exists():
+            return {}
+

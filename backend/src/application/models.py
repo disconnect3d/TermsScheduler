@@ -42,6 +42,10 @@ class User(db.Model):
         return s.dumps({'id': self.id})
 
     @staticmethod
+    def get_subjects(user_ids):
+        return Subject.query.join(Subject.groups).filter(Group.id.in_(user_ids)).order_by(Subject.name)
+
+    @staticmethod
     def verify_auth_token(token):
         s = Serializer(app.config['SECRET_KEY'])
         try:
@@ -96,7 +100,7 @@ class Subject(db.Model):
 
 class SubjectSignup(db.Model):
     __tablename__ = 'subjects_signup'
-    subject_id = db.Column(db.Integer, db.ForeignKey(Subject.id), primary_key=True),
+    subject_id = db.Column(db.Integer, db.ForeignKey(Subject.id), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
 
 

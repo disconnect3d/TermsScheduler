@@ -1,7 +1,7 @@
 import pytest
 from flask import url_for
 
-from application.models import Subject
+from application.models import Subject, SubjectSignup
 
 
 @pytest.fixture
@@ -32,9 +32,37 @@ def subjects(db, groups):
     return subjects
 
 
+@pytest.fixture
+def create_subject_signup_for_user(db):
+    def _create_subject_signup_for_user(user_id, subject_ids):
+        for subject_id in subject_ids:
+            db.session.add(SubjectSignup(subject_id=subject_id, user_id=user_id))
+
+        db.session.commit()
+
+    return _create_subject_signup_for_user
+
+
+@pytest.fixture
+def user2_with_subject_signups(user2, subjects, db):
+    subjects_signup = (
+        SubjectSignup(subject_id=1, user_id=user2.id),
+        SubjectSignup(subject_id=2, user_id=user2.id)
+    )
+
+    for ss in subjects_signup:
+        db.session.add(ss)
+    db.session.commit()
+
+
 @pytest.fixture(scope='session')
 def url_get_subjects():
     return url_for('subjectlist')
+
+
+@pytest.fixture(scope='session')
+def url_subjectsignup():
+    return url_for('subjectsignuplist')
 
 
 def subject_dict(i):
@@ -69,10 +97,37 @@ def test_get_subjects_as_user_with_no_groups(url_get_subjects, subjects, valid_a
     assert res.json == {'subjects': []}
 
 
-def test_get_subjects_as_user_with_2_groups(url_get_subjects, subjects, user_with_2_groups, valid_auth_header, client):
-    res = client.get(url_get_subjects, headers=[valid_auth_header])
+def test_get_subjects_as_user_with_2_groups(url_get_subjects, subjects, user1_with_2_groups, auth_header1, client):
+    res = client.get(url_get_subjects, headers=[auth_header1])
 
     assert res.status_code == 200
     assert res.json == {
         'subjects': [subject_dict(i) for i in range(1, 6)]
     }
+
+
+def test_get_subjects_signup_unauthorized(url_subjectsignup, db, client):
+    res = client.get(url_subjectsignup)
+
+    assert res.status_code == 401
+
+
+def test_get_subjects_signup_as_user_with_no_groups(url_subjectsignup, subjects, valid_admin_auth_header, client):
+    res = client.get(url_subjectsignup, headers=[valid_admin_auth_header])
+
+    assert res.status_code == 200
+    assert res.json == {'subjects_signup': []}
+
+
+def test_get_subjects_signup_as_user_with_2_subjects_signed(url_subjectsignup, create_subject_signup_for_user, user1, user2, auth_header1, subjects, client):
+    create_subject_signup_for_user(user_id=1, subject_ids=[1, 2])
+    create_subject_signup_for_user(user_id=2, subject_ids=[3, 4])
+
+    res = client.get(url_subjectsignup, headers=[auth_header1])
+
+    assert res.status_code == 200
+    assert res.json == {'subjects_signup': [
+        {'subject_id': 1, 'user_id': 1},
+        {'subject_id': 2, 'user_id': 1},
+    ]}
+

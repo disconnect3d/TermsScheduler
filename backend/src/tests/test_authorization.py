@@ -67,8 +67,8 @@ def test_app_require_admin_unauthorized(url_require_admin, db, client):
     assert client.get(url_require_admin).status_code == 401
 
 
-def test_app_require_admin_not_an_admin(url_require_admin, valid_auth_header, client):
-    assert client.get(url_require_admin, headers=[valid_auth_header]).status_code == 401
+def test_app_require_admin_not_an_admin(url_require_admin, auth_header1, client):
+    assert client.get(url_require_admin, headers=[auth_header1]).status_code == 401
 
 
 def test_app_require_admin_authorized(url_require_admin, valid_admin_auth_header, client):
@@ -103,10 +103,10 @@ def test_get_user_unauthorized(db, client):
     assert res.status_code == 401
 
 
-def test_get_user_authorized(valid_auth_header, db, client):
-    res = client.get(url_for('userresource', id=1), content_type='application/json', headers=[valid_auth_header])
+def test_get_user_authorized(auth_header1, db, client):
+    res = client.get(url_for('userresource', id=1), content_type='application/json', headers=[auth_header1])
     assert res.status_code == 200
-    assert res.json == {'username': 'test_user'}
+    assert res.json == {'username': 'user1'}
 
 
 def test_login_no_credentials_unauthorized(url_get_auth_token, db, client):
@@ -114,43 +114,43 @@ def test_login_no_credentials_unauthorized(url_get_auth_token, db, client):
     assert res.status_code == 401
 
 
-def test_login_bad_password_unauthorized(url_get_auth_token, user, client):
+def test_login_bad_password_unauthorized(url_get_auth_token, user1, client):
     invalid_auth = calc_auth_header_value('test_user', 'test_wrong_password')
 
-    res = client.get(url_get_auth_token, headers=[('Authorization', invalid_auth)])
+    res = client.get(url_get_auth_token, headers=[invalid_auth])
     assert res.status_code == 401
 
 
-def test_login_authorized_by_token(url_get_auth_token, valid_auth_header, user, client):
-    res = client.get(url_get_auth_token, headers=[valid_auth_header])
+def test_login_authorized_by_token(url_get_auth_token, auth_header1, user1, client):
+    res = client.get(url_get_auth_token, headers=[auth_header1])
 
     assert res.status_code == 200
     assert set(res.json.keys()) == {'duration', 'token'}
-    assert res.json['token'] == user.generate_auth_token(600).decode('ascii')
+    assert res.json['token'] == user1.generate_auth_token(600).decode('ascii')
     assert res.json['duration'] == 600
 
 
-def test_login_authorized(url_get_auth_token, user, client):
-    valid_auth = calc_auth_header_value('test_user', 'test_password')
-    test_login_authorized_by_token(url_get_auth_token, ('Authorization', valid_auth), user, client)
+def test_login_authorized(url_get_auth_token, user1, client):
+    auth_header = calc_auth_header_value('user1', 'password1')
+    test_login_authorized_by_token(url_get_auth_token, auth_header, user1, client)
 
 
-def test_get_groups_user_with_no_groups(url_grouplist, groups, valid_auth_header, client):
-    res = client.get(url_grouplist, headers=[valid_auth_header])
+def test_get_groups_user_with_no_groups(url_grouplist, groups, auth_header1, client):
+    res = client.get(url_grouplist, headers=[auth_header1])
 
     assert res.status_code == 200
     assert res.json == {u'groups': []}
 
 
-def test_get_groups_user_with_groups(url_grouplist, user_with_2_groups, valid_auth_header, client):
-    res = client.get(url_grouplist, headers=[valid_auth_header])
+def test_get_groups_user_with_groups(url_grouplist, user1_with_2_groups, auth_header1, client):
+    res = client.get(url_grouplist, headers=[auth_header1])
 
     assert res.status_code == 200
     assert res.json == {u'groups': [u'group1', u'group2']}
 
 
-def test_new_group_require_admin(url_grouplist, valid_auth_header, client):
-    res = client.post(url_grouplist, headers=[valid_auth_header],
+def test_new_group_require_admin(url_grouplist, auth_header1, client):
+    res = client.post(url_grouplist, headers=[auth_header1],
                       data=json.dumps({'name': 'test_group'}),
                       content_type='application/json')
     assert res.status_code == 401

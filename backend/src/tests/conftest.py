@@ -40,11 +40,19 @@ def create_user(db):
 
 
 @pytest.fixture
-def user(create_user):
+def user1(create_user):
     """
     Creates test_user:test_password user account.
     """
-    return create_user('test_user', 'test_password', is_admin=False)
+    return create_user('user1', 'password1', is_admin=False)
+
+
+@pytest.fixture
+def user2(create_user):
+    """
+    Creates test_user:test_password user account.
+    """
+    return create_user('user2', 'password2', is_admin=False)
 
 
 @pytest.fixture
@@ -68,25 +76,26 @@ def groups(db):
 
 
 @pytest.fixture
-def user_with_2_groups(user, groups, db):
-    user.groups.extend(groups[:2])
-    db.session.add(user)
+def user1_with_2_groups(user1, groups, db):
+    user1.groups.extend(groups[:2])
+    db.session.add(user1)
     db.session.commit()
-    return user
+    return user1
 
 
 def calc_auth_header_value(user, pwd):
     # basic auth uses base64 user:pass
-    return "Basic {}".format(base64.b64encode(bytes('{}:{}'.format(user, pwd).encode('utf-8'))).decode('utf-8'))
+    encoded = base64.b64encode(bytes('{}:{}'.format(user, pwd).encode('utf-8'))).decode('utf-8')
+    return 'Authorization', "Basic {}".format(encoded)
 
 
 @pytest.fixture
-def valid_auth_header(user):
+def auth_header1(user1):
     """
-    Returns Authorization header for the test_user:test_password account using its auth token.
+    Returns Authorization header for the `user1` account using its auth token.
     """
-    token = user.generate_auth_token(600).decode('ascii')
-    return 'Authorization', calc_auth_header_value(token, 'unused field - can be anything')
+    token = user1.generate_auth_token(600).decode('ascii')
+    return calc_auth_header_value(token, 'unused field - can be anything')
 
 
 @pytest.fixture
@@ -95,4 +104,4 @@ def valid_admin_auth_header(admin):
     Returns Authorization header for the test_admin:test_password account using its auth token.
     """
     token = admin.generate_auth_token(600).decode('ascii')
-    return 'Authorization', calc_auth_header_value(token, 'unused field - can be anything')
+    return calc_auth_header_value(token, 'unused field - can be anything')
