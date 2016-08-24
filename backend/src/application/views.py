@@ -14,29 +14,29 @@ def get_auth_token():
     return jsonify({'token': token.decode('ascii'), 'duration': 600})
 
 
-user_parser = reqparse.RequestParser()
-user_parser.add_argument('username', type=str)
-user_parser.add_argument('password', type=str)
-user_parser.add_argument('first_name', type=str)
-user_parser.add_argument('last_name', type=str)
+user_parser = reqparse.RequestParser(bundle_errors=True)
+user_parser.add_argument('username', type=str, required=True)
+user_parser.add_argument('password', type=str, required=True)
+user_parser.add_argument('first_name', type=str, required=True)
+user_parser.add_argument('last_name', type=str, required=True)
+user_parser.add_argument('email', type=str, required=True)
 
 
 class UserList(Resource):
     @public_endpoint
     def post(self):
         args = user_parser.parse_args(strict=True)
-        username, password = args['username'], args['password']
-        first_name, last_name = args['firstName'], args['lastName']
 
-        if User.query.filter_by(username=username).first() is not None:
+        if User.query.filter_by(username=args.username).first() is not None:
             print("Abort - user already exists.")
             abort(400)  # existing user
 
-        user = User(username=username, first_name=first_name, last_name=last_name)
-        user.hash_password(password)
+        # TODO / FIXME: email validation ...
+        user = User(username=args.username, first_name=args.first_name, last_name=args.last_name, email=args.email)
+        user.hash_password(args.password)
         db.session.add(user)
         db.session.commit()
-        return {'username': user.username}, 201, {'Location': url_for('api.get_user', id=user.id, _external=True)}
+        return {'username': user.username}, 201, {'Location': url_for('userresource', id=user.id, _external=True)}
 
 
 class UserResource(Resource):

@@ -29,8 +29,15 @@ def require_login():
     To make an endpoint public, use `public_endpoint` decorator.
     """
     if request.endpoint and 'static' not in request.endpoint:
-        is_public_url = getattr(current_app.view_functions.get(request.endpoint, None), 'is_public', False)
         is_admin_site = request.endpoint.startswith('admin.')
+
+        endpoint = current_app.view_functions.get(request.endpoint, None)
+
+        if hasattr(endpoint, 'view_class'):  # Checking for `is_public` in a `restful.Resource` API method
+            method_func = getattr(endpoint.view_class, request.method.lower())
+            is_public_url = getattr(method_func, 'is_public', False)
+        else:
+            is_public_url = getattr(endpoint, 'is_public', False)
 
         if not is_public_url:
             authorization = _check_auth()

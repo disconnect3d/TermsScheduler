@@ -2,6 +2,7 @@ import json
 
 import pytest
 from flask import url_for
+from flask.ext.restful import Resource, Api
 
 from application.decorators import public_endpoint, require_admin
 from application.models import Group
@@ -28,6 +29,11 @@ def url_grouplist():
     return url_for('grouplist')
 
 
+@pytest.fixture(scope='session')
+def url_userlist():
+    return url_for('userlist')
+
+
 def test_app_endpoints_require_login(app, db, client):
     @app.route('/api/test_require_login')
     def endpoint_require_login():
@@ -45,6 +51,18 @@ def test_app_public_endpoint(app, client):
     assert client.get(url_for('endpoint_public')).status_code == 200
 
 
+def test_app_public_endpoint_resource(app, client):
+    class RestResource(Resource):
+        @public_endpoint
+        def get(self):
+            return {}
+
+    api = Api(app)
+    api.add_resource(RestResource, '/test_restresource_url')
+
+    assert client.get(url_for('restresource')).status_code == 200
+
+
 def test_app_require_admin_unauthorized(url_require_admin, db, client):
     assert client.get(url_require_admin).status_code == 401
 
@@ -55,6 +73,29 @@ def test_app_require_admin_not_an_admin(url_require_admin, valid_auth_header, cl
 
 def test_app_require_admin_authorized(url_require_admin, valid_admin_auth_header, client):
     assert client.get(url_require_admin, headers=[valid_admin_auth_header]).status_code == 200
+
+
+def test_create_user_missing_params(url_userlist, db, client):
+    missing = 'Missing required parameter in the JSON body or the post body or the query string'
+    params = ('username', 'password', 'first_name', 'last_name', 'email')
+
+    res = client.post(url_userlist, data=json.dumps({}), content_type='application/json')
+    assert res.status_code == 400
+    assert res.json == {'message': {p: missing for p in params}}
+
+
+def test_create_user(url_userlist, db, client):
+    data = {
+        'username': 'test_create_user_user',
+        'password': 'test_create_user_user',
+        'first_name': 'test_create_user_user',
+        'last_name': 'test_create_user_user',
+        'email': 'email@email.email'
+    }
+
+    res = client.post(url_userlist, data=json.dumps(data), content_type='application/json')
+    assert res.status_code == 201
+    assert res.headers.get('Location').endswith('/api/users/1') == True
 
 
 def test_login_no_credentials_unauthorized(url_get_auth_token, db, client):
