@@ -4,6 +4,7 @@ from flask.ext.restful import abort, Resource, reqparse
 from application import db
 from application.decorators import public_endpoint, require_admin
 from application.models import User, Group, Subject, SubjectSignup
+from sqlalchemy import func
 
 bp = Blueprint('api', __name__)
 
@@ -86,6 +87,19 @@ class SubjectSignupList(Resource):
     def post(self):
         args = subject_signup_parser.parse_args(strict=True)
 
-        if User.get_subjects([g.user.id]).filter(Subject.id == args.subject_id).exists():
-            return {}
+        user_can_signup_for_subject = User.get_subjects([g.user.id]).filter(Subject.id == args.subject_id).exists()
 
+        if user_can_signup_for_subject:
+            signed, = db.session.query(func.count(SubjectSignup.subject_id)).filter(SubjectSignup.subject_id==args.subject_id).first()
+            limit, = db.session.query(Subject.maximum_members).filter(Subject.id == args.subject_id).first()
+
+            if signed < limit:
+                ss = SubjectSignup(subject_id=args.subject_id, user_id=g.user.id)
+                db.session.add(ss)
+                db.session.commit()
+
+                return ss
+
+            abort(400, message="There is no space left on subject %d." % args.subject_id)
+
+        abort(400, message="You can't signup for %d subject." % args.subject_id)
