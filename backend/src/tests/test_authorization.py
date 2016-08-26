@@ -71,8 +71,8 @@ def test_app_require_admin_not_an_admin(url_require_admin, auth_header1, client)
     assert client.get(url_require_admin, headers=[auth_header1]).status_code == 401
 
 
-def test_app_require_admin_authorized(url_require_admin, valid_admin_auth_header, client):
-    assert client.get(url_require_admin, headers=[valid_admin_auth_header]).status_code == 200
+def test_app_require_admin_authorized(url_require_admin, admin_auth_header, client):
+    assert client.get(url_require_admin, headers=[admin_auth_header]).status_code == 200
 
 
 def test_create_user_missing_params(url_userlist, db, client):
@@ -156,12 +156,12 @@ def test_new_group_require_admin(url_grouplist, auth_header1, client):
     assert res.status_code == 401
 
 
-def test_new_group_create(url_grouplist, valid_admin_auth_header, db, client):
+def test_new_group_create(url_grouplist, admin_auth_header, db, client):
     group_name = 'test_group'
 
     assert Group.query.count() == 0
 
-    res = client.post(url_grouplist, headers=[valid_admin_auth_header],
+    res = client.post(url_grouplist, headers=[admin_auth_header],
                       data=json.dumps({'name': group_name}),
                       content_type='application/json')
 

@@ -90,8 +90,8 @@ def test_get_subjects_unauthorized(url_get_subjects, db, client):
     assert res.status_code == 401
 
 
-def test_get_subjects_as_user_with_no_groups(url_get_subjects, subjects, valid_admin_auth_header, client):
-    res = client.get(url_get_subjects, headers=[valid_admin_auth_header])
+def test_get_subjects_as_user_with_no_groups(url_get_subjects, subjects, admin_auth_header, client):
+    res = client.get(url_get_subjects, headers=[admin_auth_header])
 
     assert res.status_code == 200
     assert res.json == {'subjects': []}
@@ -112,8 +112,8 @@ def test_get_subjects_signup_unauthorized(url_subjectsignup, db, client):
     assert res.status_code == 401
 
 
-def test_get_subjects_signup_as_user_with_no_groups(url_subjectsignup, subjects, valid_admin_auth_header, client):
-    res = client.get(url_subjectsignup, headers=[valid_admin_auth_header])
+def test_get_subjects_signup_as_user_with_no_groups(url_subjectsignup, subjects, admin_auth_header, client):
+    res = client.get(url_subjectsignup, headers=[admin_auth_header])
 
     assert res.status_code == 200
     assert res.json == {'subjects_signup': []}

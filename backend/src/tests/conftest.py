@@ -99,7 +99,7 @@ def auth_header1(user1):
 
 
 @pytest.fixture
-def valid_admin_auth_header(admin):
+def admin_auth_header(admin):
     """
     Returns Authorization header for the test_admin:test_password account using its auth token.
     """
