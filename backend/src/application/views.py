@@ -70,10 +70,7 @@ class SubjectList(Resource):
         """
         :return: List of subjects that can be chosen by particular user.
         """
-        user_group_ids = [i.id for i in g.user.groups]
-        subjects = list(User.get_subjects(user_group_ids))
-
-        return jsonify({'subjects': subjects})
+        return jsonify({'subjects': list(g.user.get_subjects())})
 
 
 subject_signup_parser = reqparse.RequestParser(bundle_errors=True)
@@ -88,7 +85,7 @@ class SubjectSignupList(Resource):
     def post(self):
         args = subject_signup_parser.parse_args(strict=True)
 
-        if User.has_subject(g.user.id, args.subject_id):
+        if g.user.has_subject(args.subject_id):
             signed, = db.session.query(
                 func.count(SubjectSignup.subject_id)
             ).filter(SubjectSignup.subject_id == args.subject_id).first()
@@ -108,7 +105,7 @@ class SubjectSignupList(Resource):
 
 class SubjectSignupResource(Resource):
     def delete(self, subject_id):
-        if User.has_subject(g.user.id, subject_id):
+        if g.user.has_subject(subject_id):
             SubjectSignup.query.filter(subject_id=subject_id, user_id=g.user.id).delete()
             db.session.commit()
             return {}

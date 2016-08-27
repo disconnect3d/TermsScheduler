@@ -30,20 +30,25 @@ class User(db.Model):
         s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps({'id': self.id})
 
-    @staticmethod
-    def get_subjects(user_ids, additional_filter=None):
-        f = UserGroup.user_id.in_(user_ids)
+    def _get_for_groups(self, model, group_model, additional_filter=None):
+        group_ids = [i.id for i in self.groups]
 
+        f = group_model.group_id.in_(group_ids)
         if additional_filter:
-            f = and_(additional_filter, f)
+            f = and_(f, additional_filter)
 
-        return Subject.query.join(Subject.groups).filter(f).order_by(Subject.name)
+        return model.query.join(group_model).filter(f)
 
-    @staticmethod
-    def has_subject(user_id, subject_id):
+    def get_subjects(self):
+        return self._get_for_groups(Subject, SubjectGroup).order_by(Subject.name)
+
+    def has_subject(self, subject_id):
         return db.session.query(
-            User.get_subjects([user_id], additional_filter=(Subject.id == subject_id)).exists()
+            self._get_for_groups(Subject, SubjectGroup, additional_filter=(Subject.id == subject_id)).exists()
         ).scalar()
+
+    def get_terms(self):
+        return self._get_for_groups(Term, TermGroup).join
 
     @staticmethod
     def verify_auth_token(token):
