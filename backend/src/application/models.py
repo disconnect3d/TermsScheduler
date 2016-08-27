@@ -5,18 +5,7 @@ from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy import and_
 
 from application import db, auth
-
-
-class UserGroup(db.Model):
-    __tablename__ = 'users_groups'
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), primary_key=True)
-
-
-class SubjectGroup(db.Model):
-    __tablename__ = 'subjects_groups'
-    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), primary_key=True)
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), primary_key=True)
+from application.enums import Day, TermType
 
 
 class User(db.Model):
@@ -86,6 +75,12 @@ class Group(db.Model):
         return "{id}: '{name}'".format(**self.__dict__)
 
 
+class UserGroup(db.Model):
+    __tablename__ = 'users_groups'
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
+    group_id = db.Column(db.Integer, db.ForeignKey(Group.id), primary_key=True)
+
+
 class Subject(db.Model):
     __tablename__ = 'subjects'
     id = db.Column(db.Integer, primary_key=True)
@@ -109,10 +104,45 @@ class Subject(db.Model):
     seminar_hours = db.Column(db.Integer, nullable=False, default=0)
 
 
+class SubjectGroup(db.Model):
+    __tablename__ = 'subjects_groups'
+    subject_id = db.Column(db.Integer, db.ForeignKey(Subject.id), primary_key=True)
+    group_id = db.Column(db.Integer, db.ForeignKey(Group.id), primary_key=True)
+
+
 class SubjectSignup(db.Model):
     __tablename__ = 'subjects_signup'
     subject_id = db.Column(db.Integer, db.ForeignKey(Subject.id), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
+
+
+class Term(db.Model):
+    __tablename__ = 'terms'
+    id = db.Column(db.Integer, primary_key=True)
+    subject_id = db.Column(db.Integer, db.ForeignKey(Subject.id))
+    type = db.Column(db.Enum(TermType), nullable=False)
+    day = db.Column(db.Enum(Day), nullable=False)
+    time_from = db.Column(db.Time, nullable=False)
+    time_to = db.Column(db.Time, nullable=False)
+
+
+class TermGroup(db.Model):
+    __tablename__ = 'terms_groups'
+    term_id = db.Column(db.Integer, db.ForeignKey(Term.id), primary_key=True)
+    group_id = db.Column(db.Integer, db.ForeignKey(Group.id), primary_key=True)
+
+
+class TermSignup(db.Model):
+    __tablename__ = 'terms_signup'
+    term_id = db.Column(db.Integer, db.ForeignKey(Term.id), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
+    points = db.Column(db.Integer, nullable=False)  # TODO/FIXME: Maybe min/max constraint?
+    reason = db.Column(db.String, nullable=False, default='')
+
+    reason_accepted = db.Column(db.Boolean, nullable=False, default=False)
+    reason_accepted_by = db.Column(db.ForeignKey(User.id), nullable=True, default=None)
+
+    is_assigned = db.Column(db.Boolean, nullable=False, default=False)
 
 
 @auth.verify_password
