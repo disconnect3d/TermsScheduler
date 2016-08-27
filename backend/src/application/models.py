@@ -6,17 +6,16 @@ from passlib.apps import custom_app_context as pwd_context
 from application import db, auth
 
 
-UserGroup = db.Table(
-    'users_groups',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
-    db.Column('group_id', db.Integer, db.ForeignKey('groups.id'), primary_key=True)
-)
+class UserGroup(db.Model):
+    __tablename__ = 'users_groups'
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), primary_key=True)
 
-SubjectGroup = db.Table(
-    'subjects_groups',
-    db.Column('subject_id', db.Integer, db.ForeignKey('subjects.id'), primary_key=True),
-    db.Column('group_id', db.Integer, db.ForeignKey('groups.id'), primary_key=True)
-)
+
+class SubjectGroup(db.Model):
+    __tablename__ = 'subjects_groups'
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), primary_key=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), primary_key=True)
 
 
 class User(db.Model):
@@ -42,8 +41,13 @@ class User(db.Model):
         return s.dumps({'id': self.id})
 
     @staticmethod
-    def get_subjects(user_ids):
-        return Subject.query.join(Subject.groups).filter(Group.id.in_(user_ids)).order_by(Subject.name)
+    def get_subjects(user_ids, additional_filter=None):
+        f = UserGroup.user_id.in_(user_ids)
+
+        if additional_filter:
+            f = and_(additional_filter, f)
+
+        return Subject.query.join(Subject.groups).filter(f).order_by(Subject.name)
 
     @staticmethod
     def verify_auth_token(token):
@@ -65,10 +69,10 @@ class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True, nullable=False)
 
-    users = db.relationship("User", secondary=UserGroup,
+    users = db.relationship("User", secondary="users_groups",
                             backref=db.backref('groups', lazy='dynamic'))
 
-    subjects = db.relationship("Subject", secondary=SubjectGroup,
+    subjects = db.relationship("Subject", secondary="subjects_groups",
                                backref=db.backref('groups', lazy='dynamic'))
 
     def __repr__(self):

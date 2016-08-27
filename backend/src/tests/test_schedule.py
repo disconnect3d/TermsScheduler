@@ -142,5 +142,5 @@ def test_post_subject_signup_unauthorized(url_subjectsignup, db, client):
 def test_post_subject_signup_user_without_groups(url_subjectsignup, admin_auth_header, subjects, client):
     res = client.post(url_subjectsignup, data=json.dumps({'subject_id': 1}), headers=[admin_auth_header], content_type='application/json')
 
-    assert res.status_code == 200
-    assert res.json == {'subject_id': 1, 'user_id': 1}
+    assert res.status_code == 400
+    assert res.json == {'message': "You can't signup for subject 1."}

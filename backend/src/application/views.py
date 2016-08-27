@@ -89,7 +89,7 @@ class SubjectSignupList(Resource):
         args = subject_signup_parser.parse_args(strict=True)
 
         user_can_signup_for_subject = db.session.query(
-            User.get_subjects([g.user.id]).filter(Subject.id == args.subject_id).exists()
+            User.get_subjects([g.user.id], additional_filter=(Subject.id == args.subject_id)).exists()
         ).scalar()
 
         if user_can_signup_for_subject:
@@ -108,4 +108,4 @@ class SubjectSignupList(Resource):
 
             abort(400, message="There is no space left on subject %d." % args.subject_id)
 
-        abort(400, message="You can't signup for %d subject." % args.subject_id)
+        abort(400, message="You can't signup for subject %d." % args.subject_id)
