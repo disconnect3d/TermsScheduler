@@ -1,3 +1,4 @@
+from flask import json
 from flask import request, jsonify, url_for, g, Blueprint
 from flask.ext.restful import abort, Resource, reqparse
 
@@ -87,10 +88,15 @@ class SubjectSignupList(Resource):
     def post(self):
         args = subject_signup_parser.parse_args(strict=True)
 
-        user_can_signup_for_subject = User.get_subjects([g.user.id]).filter(Subject.id == args.subject_id).exists()
+        user_can_signup_for_subject = db.session.query(
+            User.get_subjects([g.user.id]).filter(Subject.id == args.subject_id).exists()
+        ).scalar()
 
         if user_can_signup_for_subject:
-            signed, = db.session.query(func.count(SubjectSignup.subject_id)).filter(SubjectSignup.subject_id==args.subject_id).first()
+            signed, = db.session.query(
+                func.count(SubjectSignup.subject_id)
+            ).filter(SubjectSignup.subject_id == args.subject_id).first()
+
             limit, = db.session.query(Subject.maximum_members).filter(Subject.id == args.subject_id).first()
 
             if signed < limit:
@@ -98,7 +104,7 @@ class SubjectSignupList(Resource):
                 db.session.add(ss)
                 db.session.commit()
 
-                return ss
+                return json.dumps(ss)
 
             abort(400, message="There is no space left on subject %d." % args.subject_id)
 

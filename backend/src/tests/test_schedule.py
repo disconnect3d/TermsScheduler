@@ -1,4 +1,5 @@
 import pytest
+from flask import json
 from flask import url_for
 
 from application.models import Subject, SubjectSignup
@@ -131,3 +132,15 @@ def test_get_subjects_signup_as_user_with_2_subjects_signed(url_subjectsignup, c
         {'subject_id': 2, 'user_id': 1},
     ]}
 
+
+def test_post_subject_signup_unauthorized(url_subjectsignup, db, client):
+    res = client.post(url_subjectsignup, data=json.dumps({'subject_id': 1}), content_type='application/json')
+
+    assert res.status_code == 401
+
+
+def test_post_subject_signup_user_without_groups(url_subjectsignup, admin_auth_header, subjects, client):
+    res = client.post(url_subjectsignup, data=json.dumps({'subject_id': 1}), headers=[admin_auth_header], content_type='application/json')
+
+    assert res.status_code == 200
+    assert res.json == {'subject_id': 1, 'user_id': 1}

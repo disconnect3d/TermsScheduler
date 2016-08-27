@@ -99,12 +99,12 @@ def test_create_user(url_userlist, db, client):
 
 
 def test_get_user_unauthorized(db, client):
-    res = client.get(url_for('userresource', id=1), content_type='application/json')
+    res = client.get(url_for('userresource', id=1))
     assert res.status_code == 401
 
 
 def test_get_user_authorized(auth_header1, db, client):
-    res = client.get(url_for('userresource', id=1), content_type='application/json', headers=[auth_header1])
+    res = client.get(url_for('userresource', id=1),  headers=[auth_header1])
     assert res.status_code == 200
     assert res.json == {'username': 'user1'}
 
