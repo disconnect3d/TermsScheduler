@@ -2,6 +2,7 @@ from flask import g, current_app as app
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
+from sqlalchemy import and_
 
 from application import db, auth
 
@@ -48,6 +49,12 @@ class User(db.Model):
             f = and_(additional_filter, f)
 
         return Subject.query.join(Subject.groups).filter(f).order_by(Subject.name)
+
+    @staticmethod
+    def has_subject(user_id, subject_id):
+        return db.session.query(
+            User.get_subjects([user_id], additional_filter=(Subject.id == subject_id)).exists()
+        ).scalar()
 
     @staticmethod
     def verify_auth_token(token):

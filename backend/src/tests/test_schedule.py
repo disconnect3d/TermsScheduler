@@ -144,3 +144,32 @@ def test_post_subject_signup_user_without_groups(url_subjectsignup, admin_auth_h
 
     assert res.status_code == 400
     assert res.json == {'message': "You can't signup for subject 1."}
+
+
+def test_post_subject_signup_user_with_groups(url_subjectsignup, auth_header1, user1_with_2_groups, subjects, client):
+    res = client.post(url_subjectsignup, data=json.dumps({'subject_id': 1}), headers=[auth_header1], content_type='application/json')
+
+    assert res.status_code == 200
+    assert res.json == {'signed': {'subject_id': 1, 'user_id': 1}}
+
+
+def test_delete_subject_signup_unauthorized(db, client):
+    res = client.delete(url_for('subjectsignupresource', subject_id=1))
+
+    assert res.status_code == 401
+
+
+def test_delete_subject_signup_doesnt_exist(db, auth_header1, client):
+    res = client.delete(url_for('subjectsignupresource', subject_id=1), headers=[auth_header1])
+
+    assert res.status_code == 400
+    assert res.json == {'message': "Can't delete subject you are not signed on."}
+
+
+def test_delete_subject_signup_deleted(create_subject_signup_for_user, auth_header1, subjects, db, client):
+    create_subject_signup_for_user(user_id=1, subject_ids=[1])
+
+    res = client.delete(url_for('subjectsignupresource', subject_id=1), headers=[auth_header1])
+
+    assert res.status_code == 400
+    assert res.json == {'message': "Can't delete subject you are not signed on."}

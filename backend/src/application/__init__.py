@@ -5,7 +5,6 @@ from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.restful import Api
 from flask.ext.sqlalchemy import SQLAlchemy
 
-
 db = SQLAlchemy()
 auth = HTTPBasicAuth()
 
@@ -32,12 +31,14 @@ def create_app(config):
     from application.views import bp as bp_auth
     app.register_blueprint(bp_auth)
 
-    from application.views import UserList, UserResource, GroupList, SubjectList, SubjectSignupList
+    from application.views import UserList, UserResource, GroupList, SubjectList, SubjectSignupList, \
+        SubjectSignupResource
     api.add_resource(UserList, '/api/users')
     api.add_resource(UserResource, '/api/users/<int:id>')
     api.add_resource(GroupList, '/api/groups')
     api.add_resource(SubjectList, '/api/subjects')
     api.add_resource(SubjectSignupList, '/api/subjects_signup')
+    api.add_resource(SubjectSignupResource, '/api/subjets_signup/<int:subject_id>')
 
     # Admin panel
     from application.models import User, Group

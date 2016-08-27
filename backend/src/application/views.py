@@ -88,11 +88,7 @@ class SubjectSignupList(Resource):
     def post(self):
         args = subject_signup_parser.parse_args(strict=True)
 
-        user_can_signup_for_subject = db.session.query(
-            User.get_subjects([g.user.id], additional_filter=(Subject.id == args.subject_id)).exists()
-        ).scalar()
-
-        if user_can_signup_for_subject:
+        if User.has_subject(g.user.id, args.subject_id):
             signed, = db.session.query(
                 func.count(SubjectSignup.subject_id)
             ).filter(SubjectSignup.subject_id == args.subject_id).first()
@@ -103,9 +99,18 @@ class SubjectSignupList(Resource):
                 ss = SubjectSignup(subject_id=args.subject_id, user_id=g.user.id)
                 db.session.add(ss)
                 db.session.commit()
-
-                return json.dumps(ss)
+                return jsonify({'signed': ss})
 
             abort(400, message="There is no space left on subject %d." % args.subject_id)
 
         abort(400, message="You can't signup for subject %d." % args.subject_id)
+
+
+class SubjectSignupResource(Resource):
+    def delete(self, subject_id):
+        if User.has_subject(g.user.id, subject_id):
+            SubjectSignup.query.filter(subject_id=subject_id, user_id=g.user.id).delete()
+            db.session.commit()
+            return {}
+
+        abort(400, message="Can't delete subject you are not signed on.")
