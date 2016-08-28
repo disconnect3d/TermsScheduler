@@ -9,7 +9,7 @@
 
 
     GetById = (id) ->
-      return $http.get('/api/users/' + id).then(handleSuccess, handleError('Error getting user by id'))
+      return $http.get(settings.backendUrl + 'users/' + id).then(handleSuccess, handleError('Error getting user by id'))
 
 
     GetByUsername = (username) ->

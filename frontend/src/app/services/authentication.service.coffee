@@ -10,9 +10,12 @@
       SetCredentials(username, password)
       $http.get(settings.backendUrl + 'login')
       .then(
-        (response) -> callback(response),
+        (response) -> setUserData(response); callback(response),
         (response) -> FlashService.Error(response); errCallback(response)
       )
+    setUserData = (response) ->
+        $rootScope.globals.currentUser['id'] = response.data.id
+        $rootScope.globals.currentUser['token'] = response.data.token
 
     SetCredentials = (username, password) ->
       authdata = Base64.encode(username + ':' + password)

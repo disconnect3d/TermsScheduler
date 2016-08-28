@@ -1,3 +1,6 @@
+cap = (string) ->
+  return string.charAt(0).toUpperCase() + string.slice(1)
+
 angular.module('TermsScheduler', [
   'ngCookies',
   'templates-app',
@@ -8,6 +11,13 @@ angular.module('TermsScheduler', [
   backendUrl: "http://localhost:5000/api/"
 })
 .config(($stateProvider, $urlRouterProvider) ->
+  state = ($sp, name) ->
+    $sp.state(name, {
+      url: "/#{name}",
+      templateUrl: "#{name}/#{name}.tpl.html",
+      controller: "#{cap(name)}Controller"
+    })
+
   $stateProvider
   .state('login', {
     url: "/login",
@@ -27,6 +37,7 @@ angular.module('TermsScheduler', [
     controller: 'HomeController',
     controllerAs: 'vm'
   })
+  state($stateProvider, 'subjects')
   $urlRouterProvider.otherwise('/')
 )
 
@@ -45,10 +56,11 @@ angular.module('TermsScheduler', [
   )
 )
 
-.controller('AppCtrl', ($scope, $location) ->
+.controller('AppCtrl', ($scope) ->
   $scope.pageTitle = 'Terms Scheduler'
-  $scope.$on('$stateChangeSuccess',(event, toState, toParams, fromState, fromParams) ->
+  $scope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) ->
     if angular.isDefined(toState.name)
       $scope.pageTitle = toState.name + ' | Terms Scheduler'
+      $scope.name = cap(toState.name)
   )
 )
