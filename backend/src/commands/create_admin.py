@@ -2,7 +2,7 @@ from flask.ext.script import Command, prompt
 from flask.ext.script.cli import prompt_pass
 
 from application import db
-from application.authorization.models import User
+from application.models import User
 
 
 class CreateAdmin(Command):

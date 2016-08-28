@@ -8,6 +8,7 @@ from termcolor import colored, cprint
 
 from application import create_app, db
 # use dev config if env var is not set
+from commands.add_dev_data import AddDevData
 from commands.create_admin import CreateAdmin
 
 config_file_path = os.environ.get('APP_CONFIG', None) or '../dev_config.py'
@@ -19,6 +20,7 @@ migrate = Migrate(app, db)
 
 manager.add_command('db', MigrateCommand)
 manager.add_command('create_admin', CreateAdmin())
+manager.add_command('add_dev_data', AddDevData())
 
 
 def _make_context():
@@ -52,19 +54,18 @@ def _make_context():
     print_name('logsql', 'utility function to enable/disable logging of SQLAlchemy SQL queries')
 
     # Imports models from specified modules
-    from application.authorization import models as authorization_models
+    from application import models
 
     cprint('Models:', 'yellow', attrs=['bold'])
-    for model in (authorization_models,):
-        for attr_name in dir(model):
-            attr = getattr(model, attr_name)
+    for attr_name in dir(models):
+        attr = getattr(models, attr_name)
 
-            if inspect.isclass(attr) and issubclass(attr, db.Model):
-                context_dict[attr.__name__] = attr
-                print_name(
-                    attr.__name__,
-                    'imported from ' + colored(model.__name__ + '.' + attr.__name__, 'green')
-                )
+        if inspect.isclass(attr) and issubclass(attr, db.Model):
+            context_dict[attr.__name__] = attr
+            print_name(
+                attr.__name__,
+                'imported from ' + colored(models.__name__ + '.' + attr.__name__, 'green')
+            )
 
     return context_dict
 
