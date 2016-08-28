@@ -4,25 +4,20 @@
   '$http'
   '$q'
   'settings'
-  ($http, $q, settings) ->
+  'utils'
+  ($http, $q, settings, u) ->
     GetById = (id) ->
-      return $http.get(settings.backendUrl + 'users/' + id).then(handleSuccess, handleError('Error getting user by id'))
+      return $http.get(settings.backendUrl + 'users/' + id).then(handleSuccess,
+        u.handleError('Error getting user by id'))
 
     Create = (user) ->
-      return $http.post(settings.backendUrl + 'users', user).then(handleSuccess, handleError('Error creating user'))
+      return $http.post(settings.backendUrl + 'users', user).then(handleSuccess, u.handleError('Error creating user'))
 
     Update = (user) ->
-      return $http.put('/api/users/' + user.id, user).then(handleSuccess, handleError('Error updating user'))
+      return $http.put('/api/users/' + user.id, user).then(handleSuccess, u.handleError('Error updating user'))
 
     handleSuccess = (res) ->
       return res.data
-
-
-    handleError = (altMessage) ->
-      return  (response) ->
-        if response.data && response.data.message
-          return $q.reject(response.data.message)
-        return $q.reject(altMessage)
 
     return {
       GetById: GetById
