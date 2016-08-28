@@ -8,6 +8,7 @@ from termcolor import colored, cprint
 
 from application import create_app, db
 # use dev config if env var is not set
+from commands.add_dev_data import AddDevData
 from commands.create_admin import CreateAdmin
 
 config_file_path = os.environ.get('APP_CONFIG', None) or '../dev_config.py'
@@ -19,6 +20,7 @@ migrate = Migrate(app, db)
 
 manager.add_command('db', MigrateCommand)
 manager.add_command('create_admin', CreateAdmin())
+manager.add_command('add_dev_data', AddDevData())
 
 
 def _make_context():
