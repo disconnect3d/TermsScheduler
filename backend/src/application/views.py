@@ -13,7 +13,11 @@ bp = Blueprint('api', __name__)
 @bp.route('/api/login')
 def get_auth_token():
     token = g.user.generate_auth_token(600)
-    return jsonify({'token': token.decode('ascii'), 'duration': 600})
+    return jsonify({
+        'token': token.decode('ascii'),
+        'duration': 600,
+        'id': g.user.id,
+    })
 
 
 user_parser = reqparse.RequestParser(bundle_errors=True)
