@@ -11,7 +11,7 @@
         <tr ng-repeat="s in subjects">
             <td>{{ s.name }}</td>
             <td>{{ s.ects }}</td>
-            <td><input type="checkbox" ng-model="s.signed" ng-change="signUp(s.id)"></td>
+            <td><input type="checkbox" ng-model="s.signed" ng-change="signUpToogle(s)"></td>
         </tr>
         </tbody>
     </table>
