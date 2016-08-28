@@ -1,5 +1,4 @@
-from flask import json
-from flask import request, jsonify, url_for, g, Blueprint
+from flask import request, jsonify, g, Blueprint
 from flask.ext.restful import abort, Resource, reqparse
 
 from application import db
@@ -34,15 +33,14 @@ class UserList(Resource):
         args = user_parser.parse_args(strict=True)
 
         if User.query.filter_by(username=args.username).first() is not None:
-            print("Abort - user already exists.")
-            abort(400)  # existing user
+            abort(400, message="User already exists")
 
         # TODO / FIXME: email validation ...
         user = User(username=args.username, first_name=args.first_name, last_name=args.last_name, email=args.email)
         user.hash_password(args.password)
         db.session.add(user)
         db.session.commit()
-        return {'username': user.username}, 201, {'Location': url_for('userresource', id=user.id, _external=True)}
+        return 201
 
 
 class UserResource(Resource):

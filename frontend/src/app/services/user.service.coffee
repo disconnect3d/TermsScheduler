@@ -1,24 +1,15 @@
 ﻿angular
 .module('TermsScheduler')
 .factory('UserService', [
-  '$http',
-  'settings',
-  ($http, settings) ->
-    GetAll = () ->
-      return $http.get(settings.backendUrl + 'allusers').then(handleSuccess, handleError('Error getting all users'))
-
-
+  '$http'
+  '$q'
+  'settings'
+  ($http, $q, settings) ->
     GetById = (id) ->
       return $http.get(settings.backendUrl + 'users/' + id).then(handleSuccess, handleError('Error getting user by id'))
 
-
-    GetByUsername = (username) ->
-      return $http.get('/api/users/' + username).then(handleSuccess, handleError('Error getting user by username'))
-
-
     Create = (user) ->
       return $http.post(settings.backendUrl + 'users', user).then(handleSuccess, handleError('Error creating user'))
-
 
     Update = (user) ->
       return $http.put('/api/users/' + user.id, user).then(handleSuccess, handleError('Error updating user'))
@@ -27,14 +18,14 @@
       return res.data
 
 
-    handleError = (error) ->
-      return  () ->
-        return {success: false, message: error}
+    handleError = (altMessage) ->
+      return  (response) ->
+        if response.data && response.data.message
+          return $q.reject(response.data.message)
+        return $q.reject(altMessage)
 
     return {
-      GetAll: GetAll
       GetById: GetById
-      GetByUsername: GetByUsername
       Create: Create
       Update: Update
     }

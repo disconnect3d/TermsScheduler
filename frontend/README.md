@@ -1,4 +1,4 @@
-# Frondend for Terms Scheduler 
+# Frontend for Terms Scheduler
 
 Based on ng-boilerplate seed-project 
 
