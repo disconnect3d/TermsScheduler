@@ -4,7 +4,7 @@ from flask.ext.restful import abort, Resource, reqparse
 
 from application import db
 from application.decorators import public_endpoint, require_admin
-from application.models import User, Group, Subject, SubjectSignup
+from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term
 from sqlalchemy import func
 
 bp = Blueprint('api', __name__)
@@ -111,3 +111,36 @@ class SubjectSignupResource(Resource):
             return {}
 
         abort(400, message="Can't delete subject you are not signed on.")
+
+
+class SubjectWithTermList(Resource):
+    def get(self):
+        """
+        :return: List of terms that can be chosen by particular user.
+        """
+        return jsonify
+
+
+term_signup_parser = reqparse.RequestParser(bundle_errors=True)
+term_signup_parser.add_argument('term_id', type=int, required=True)
+
+
+class TermSignupList(Resource):
+    def get(self):
+        # TODO / FIXME / WIP
+        ss = list(TermSignup.query.filter(TermSignup.user_id == g.user.id).join(Term).order_by(Term.day, Term.time_from))
+        return jsonify({'terms_signup': ss})
+
+    def post(self):
+        # TODO / FIXME / WIP
+        args = term_signup_parser.parse_args(strict=True)
+
+        if g.user.has_term(args.term_id):
+
+            ts = TermSignup(term_id=args.term_id, user_id=g.user.id)
+            db.session.add(ts)
+            db.session.commit()
+            return jsonify({'term_signup': ts})
+
+
+        abort(400, message="You can't signup for subject %d." % args.subject_id)

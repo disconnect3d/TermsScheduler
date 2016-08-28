@@ -2,7 +2,7 @@ from flask import g, current_app as app
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
-from sqlalchemy import and_
+from sqlalchemy import and_, event
 
 from application import db, auth
 from application.enums import Day, TermType
@@ -19,6 +19,9 @@ class User(db.Model):
     last_name = db.Column(db.String(64), nullable=False)
 
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
+
+    signed_subjects = db.relationship('Subject', secondary='subjects_signup',
+                                      backref=db.backref('signed_users', lazy='dynamic'))
 
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
@@ -48,7 +51,12 @@ class User(db.Model):
         ).scalar()
 
     def get_terms(self):
-        return self._get_for_groups(Term, TermGroup).join
+        return self._get_for_groups(Term, TermGroup)
+
+    def has_term(self, term_id):
+        return db.session.query(
+            self._get_for_groups(Term, TermGroup, additional_filter=Term.id == term_id).exists()
+        ).scalar()
 
     @staticmethod
     def verify_auth_token(token):
@@ -70,11 +78,14 @@ class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True, nullable=False)
 
-    users = db.relationship("User", secondary="users_groups",
+    users = db.relationship('User', secondary='users_groups',
                             backref=db.backref('groups', lazy='dynamic'))
 
-    subjects = db.relationship("Subject", secondary="subjects_groups",
+    subjects = db.relationship('Subject', secondary='subjects_groups',
                                backref=db.backref('groups', lazy='dynamic'))
+
+    terms = db.relationship('Term', secondary='terms_groups',
+                            backref=db.backref('groups', lazy='dynamic'))
 
     def __repr__(self):
         return "{id}: '{name}'".format(**self.__dict__)
@@ -88,6 +99,13 @@ class UserGroup(db.Model):
 
 class Subject(db.Model):
     __tablename__ = 'subjects'
+
+    def __json__(self):
+        return (
+            'id', 'name', 'description', 'syllabus_url', 'ects', 'minimum_members', 'maximum_members',
+            'lecture_hours', 'lab_hours', 'exercises_hours', 'project_hours', 'seminar_hours'
+        )
+
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(64), nullable=False)
@@ -148,6 +166,15 @@ class TermSignup(db.Model):
     reason_accepted_by = db.Column(db.ForeignKey(User.id), nullable=True, default=None)
 
     is_assigned = db.Column(db.Boolean, nullable=False, default=False)
+
+
+@event.listens_for(TermGroup, 'before_insert')
+def term_before_insert(mapper, connection, target):
+    """
+    Fails the `insert` if the given `group_id` doesn't match the Term's Subject.groups ids
+    """
+    import ipdb
+    ipdb.set_trace()
 
 
 @auth.verify_password

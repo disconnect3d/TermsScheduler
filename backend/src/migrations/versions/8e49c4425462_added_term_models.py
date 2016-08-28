@@ -1,13 +1,13 @@
-"""Added Term* models
+"""Added Term models
 
-Revision ID: c12c329a63b6
+Revision ID: 8e49c4425462
 Revises: 3da45596c5c1
-Create Date: 2016-08-27 14:56:52.122937
+Create Date: 2016-08-28 17:19:39.131717
 
 """
 
 # revision identifiers, used by Alembic.
-revision = 'c12c329a63b6'
+revision = '8e49c4425462'
 down_revision = '3da45596c5c1'
 
 from alembic import op
@@ -19,8 +19,8 @@ def upgrade():
     op.create_table('terms',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('subject_id', sa.Integer(), nullable=True),
-    sa.Column('type', sa.Enum('lab', 'project', 'seminary', name='termtype'), nullable=False),
-    sa.Column('day', sa.Enum('monday', 'tuesday', 'wednesday', 'thursday', 'saturday', 'sunday', name='day'), nullable=False),
+    sa.Column('type', sa.Enum('lab', 'project', 'seminary', 'exercises', name='termtype'), nullable=False),
+    sa.Column('day', sa.Enum('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', name='day'), nullable=False),
     sa.Column('time_from', sa.Time(), nullable=False),
     sa.Column('time_to', sa.Time(), nullable=False),
     sa.ForeignKeyConstraint(['subject_id'], ['subjects.id'], ),

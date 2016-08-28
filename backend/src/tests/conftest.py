@@ -4,7 +4,7 @@ import pytest
 
 from application import create_app
 from application import db as alchemy_db
-from application.models import User, Group
+from application.models import User, Group, Subject
 
 
 @pytest.fixture
@@ -105,3 +105,31 @@ def admin_auth_header(admin):
     """
     token = admin.generate_auth_token(600).decode('ascii')
     return calc_auth_header_value(token, 'unused field - can be anything')
+
+
+@pytest.fixture
+def subjects(db, groups):
+    """
+    Creates subjects and assigns them to groups:
+    - group1: sub1, sub2, sub3
+    - group2: sub4, sub5, sub6
+    - group3: sub1, sub2, sub3, sub4, sub5
+
+    Returns created subjects.
+    """
+    group1, group2, group3 = groups
+
+    subjects = (
+        Subject(name='sub1', groups=[group1, group3]),
+        Subject(name='sub2', groups=[group1, group3]),
+        Subject(name='sub3', groups=[group1, group3]),
+        Subject(name='sub4', groups=[group2, group3]),
+        Subject(name='sub5', groups=[group2, group3]),
+        Subject(name='sub6', groups=[]),
+    )
+
+    for subject in subjects:
+        db.session.add(subject)
+    db.session.commit()
+
+    return subjects

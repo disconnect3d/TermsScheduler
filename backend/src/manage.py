@@ -23,25 +23,25 @@ manager.add_command('create_admin', CreateAdmin())
 manager.add_command('add_dev_data', AddDevData())
 
 
+def logsql():
+    """
+    Enables/disables logging of SQLALchemy sql queries.
+    """
+    import logging
+    logging.basicConfig()
+    logger = logging.getLogger('sqlalchemy.engine')
+
+    if logger.level == logging.NOTSET:
+        logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.NOTSET)
+
+
 def _make_context():
     """
     Return context dict for a shell session so one can access
     stuff without importing it explicitly.
     """
-
-    def logsql():
-        """
-        Enables/disables logging of SQLALchemy sql queries.
-        """
-        import logging
-        logging.basicConfig()
-        logger = logging.getLogger('sqlalchemy.engine')
-
-        if logger.level == logging.NOTSET:
-            logger.setLevel(logging.INFO)
-        else:
-            logger.setLevel(logging.NOTSET)
-
     context_dict = {'app': app, 'db': db, 'logsql': logsql}
 
     def print_name(name, desc):
@@ -73,4 +73,5 @@ def _make_context():
 manager.add_command('shell', Shell(make_context=_make_context))
 
 if __name__ == '__main__':
+    logsql()
     manager.run()
