@@ -110,7 +110,9 @@ class SubjectSignupList(Resource):
 class SubjectSignupResource(Resource):
     def delete(self, subject_id):
         if g.user.has_subject(subject_id):
-            SubjectSignup.query.filter(subject_id=subject_id, user_id=g.user.id).delete()
+            SubjectSignup.query.filter(SubjectSignup.subject_id == subject_id,
+                                       SubjectSignup.user_id == g.user.id).delete(synchronize_session=False)
+            db.session.expire_all()
             db.session.commit()
             return {}
 

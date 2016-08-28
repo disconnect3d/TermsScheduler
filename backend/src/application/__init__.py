@@ -39,7 +39,7 @@ def create_app(config):
     api.add_resource(GroupList, '/api/groups')
     api.add_resource(SubjectList, '/api/subjects')
     api.add_resource(SubjectSignupList, '/api/subjects_signup')
-    api.add_resource(SubjectSignupResource, '/api/subjets_signup/<int:subject_id>')
+    api.add_resource(SubjectSignupResource, '/api/subjects_signup/<int:subject_id>')
 
     # Admin panel
     from application.models import User, Group
