@@ -4,6 +4,7 @@ import os
 
 from flask.ext.migrate import MigrateCommand, Migrate
 from flask.ext.script import Manager, Shell
+from sqlalchemy import func
 from termcolor import colored, cprint
 
 from application import create_app, db
@@ -42,7 +43,7 @@ def _make_context():
     Return context dict for a shell session so one can access
     stuff without importing it explicitly.
     """
-    context_dict = {'app': app, 'db': db, 'logsql': logsql}
+    context_dict = {'app': app, 'db': db, 'logsql': logsql, 'func': func}
 
     def print_name(name, desc):
         name = colored(name, 'blue', attrs=['bold'])
@@ -51,6 +52,7 @@ def _make_context():
     cprint('Names already imported to the shell (by `_make_context`):', 'yellow', attrs=['bold'])
     print_name('app', 'Flask application')
     print_name('db', 'flask.sqlalchemy database object')
+    print_name('func', 'sqlalchemy.func')
     print_name('logsql', 'utility function to enable/disable logging of SQLAlchemy SQL queries')
 
     # Imports models from specified modules
