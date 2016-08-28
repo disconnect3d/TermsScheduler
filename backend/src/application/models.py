@@ -3,6 +3,7 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy import and_, event
+from sqlalchemy.orm import validates
 
 from application import db, auth
 from application.enums import Day, TermType
@@ -166,15 +167,6 @@ class TermSignup(db.Model):
     reason_accepted_by = db.Column(db.ForeignKey(User.id), nullable=True, default=None)
 
     is_assigned = db.Column(db.Boolean, nullable=False, default=False)
-
-
-@event.listens_for(TermGroup, 'before_insert')
-def term_before_insert(mapper, connection, target):
-    """
-    Fails the `insert` if the given `group_id` doesn't match the Term's Subject.groups ids
-    """
-    import ipdb
-    ipdb.set_trace()
 
 
 @auth.verify_password

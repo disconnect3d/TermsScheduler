@@ -6,6 +6,8 @@ from flask.ext.restful import Api
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
 
+from application.views import TermSignupList
+
 db = SQLAlchemy()
 auth = HTTPBasicAuth()
 
@@ -33,13 +35,16 @@ def create_app(config):
     app.register_blueprint(bp_auth)
 
     from application.views import UserList, UserResource, GroupList, SubjectList, SubjectSignupList, \
-        SubjectSignupResource
+        SubjectSignupResource, TermList
+
     api.add_resource(UserList, '/api/users')
     api.add_resource(UserResource, '/api/users/<int:id>')
     api.add_resource(GroupList, '/api/groups')
     api.add_resource(SubjectList, '/api/subjects')
     api.add_resource(SubjectSignupList, '/api/subjects_signup')
     api.add_resource(SubjectSignupResource, '/api/subjects_signup/<int:subject_id>')
+    api.add_resource(TermList, '/api/terms')
+    api.add_resource(TermSignupList, '/api/subjects_signup')
 
     # Admin panel
     from application.models import User, Group, Subject, Term, TermSignup

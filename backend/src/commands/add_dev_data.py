@@ -1,8 +1,13 @@
+import random
+from itertools import count
+
+import datetime
 from flask.ext.script import Command
 from passlib.apps import custom_app_context as pwd_context
 
 from application import db
-from application.models import User, Group, UserGroup, Subject, SubjectGroup
+from application.enums import TermType, Day
+from application.models import User, Group, UserGroup, Subject, SubjectGroup, Term
 
 
 class AddDevData(Command):
@@ -54,25 +59,43 @@ class AddDevData(Command):
                 'lecture_hours': 10, 'lab_hours': 10, 'exercises_hours': 10, 'project_hours': 10, 'seminar_hours': 10
             }
 
-        db.session.execute(
-            Subject.__table__.insert(),
-            [
-                subject_stub(1, 'Math 1'),
-                subject_stub(2, 'Discrete math'),
-                subject_stub(3, 'Unix'),
-                subject_stub(4, 'Algebra'),
-                subject_stub(5, 'Programming 1'),
+        subjects = [
+            subject_stub(1, 'Math 1'),
+            subject_stub(2, 'Discrete math'),
+            subject_stub(3, 'Unix'),
+            subject_stub(4, 'Algebra'),
+            subject_stub(5, 'Programming 1'),
 
-                subject_stub(6, 'Math 2'),
-                subject_stub(7, 'Programming 2'),
-                subject_stub(8, 'Scripting languages'),
-                subject_stub(9, 'Software engineering')
-            ]
-        )
+            subject_stub(6, 'Math 2'),
+            subject_stub(7, 'Programming 2'),
+            subject_stub(8, 'Scripting languages'),
+            subject_stub(9, 'Software engineering')
+        ]
+        db.session.execute(Subject.__table__.insert(), subjects)
 
         db.session.execute(
             SubjectGroup.__table__.insert(),
             [
                 {'subject_id': i, 'group_id': 1} if i < 6 else {'subject_id': i, 'group_id': 2} for i in range(1, 10)
                 ]
+        )
+
+        random.seed(1)
+        seq = count()
+
+        def term_stub(subject):
+            days = list(Day.__members__.keys())
+            hour = random.randrange(8, 18)
+            return {
+                'id': next(seq),
+                'subject_id': subject['id'],
+                'type': TermType.lab,
+                'day': random.choice(days),
+                'time_from': datetime.time(hour),
+                'time_to': datetime.time(hour + 1)
+            }
+
+        db.session.execute(
+            Term.__table__.insert(),
+            [term_stub(s) for x in range(0, 3) for s in subjects]
         )

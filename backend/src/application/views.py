@@ -3,7 +3,7 @@ from flask.ext.restful import abort, Resource, reqparse
 
 from application import db
 from application.decorators import public_endpoint, require_admin
-from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term
+from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term, TermGroup
 from sqlalchemy import func
 
 bp = Blueprint('api', __name__)
@@ -131,9 +131,16 @@ term_signup_parser = reqparse.RequestParser(bundle_errors=True)
 term_signup_parser.add_argument('term_id', type=int, required=True)
 
 
+class TermList(Resource):
+    def get(self):
+        fields = (Subject.id, Subject.name, Term.id, Term.day, Term.time_from, Term.time_to)
+        res = db.session.query(*fields).join(Term).join(TermGroup).filter(
+            TermGroup.group_id.in_([i.id for i in g.user.groups]))
+        return jsonify({'terms': list(res)})
+
+
 class TermSignupList(Resource):
     def get(self):
-        # TODO / FIXME / WIP
         ss = list(
             TermSignup.query.filter(TermSignup.user_id == g.user.id).join(Term).order_by(Term.day, Term.time_from))
         return jsonify({'terms_signup': ss})

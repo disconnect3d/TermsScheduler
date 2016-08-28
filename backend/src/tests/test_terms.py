@@ -45,13 +45,6 @@ def url_get_terms():
 
 
 def test_get_terms_for_user_unauthorized(url_get_terms, terms, db, client):
-    # TODO / FIXME / WIP
-    pass
-    # import ipdb
-    # ipdb.set_trace()
-    # create_subject_signup_for_user(user_id=1, subject_ids=[1])
-    #
-    # res = client.delete(url_for('subjectsignupresource', subject_id=1), headers=[auth_header1])
-    #
-    # assert res.status_code == 400
-    # assert res.json == {'message': "Can't delete subject you are not signed on."}
+    res = client.get(url_get_terms)
+
+    assert res.status_code == 401
