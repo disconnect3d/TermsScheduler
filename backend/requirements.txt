@@ -31,7 +31,7 @@ python-editor==1.0.1
 pytz==2016.3
 simplegeneric==0.8.1
 six==1.10.0
-SQLAlchemy-1.1.0b3
+SQLAlchemy==1.1.0b3
 termcolor==1.1.0
 traitlets==4.2.2
 wcwidth==0.1.7
