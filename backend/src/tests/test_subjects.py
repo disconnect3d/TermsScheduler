@@ -3,6 +3,7 @@ from flask import json
 from flask import url_for
 
 from application.models import SubjectSignup
+from tests.conftest import calc_auth_header_value
 
 
 @pytest.fixture
@@ -125,6 +126,28 @@ def test_post_subject_signup_user_with_groups(url_subjectsignup, auth_header1, u
 
     assert res.status_code == 200
     assert res.json == {'signed': {'subject_id': 1, 'user_id': 1}}
+
+
+def test_post_subject_signup_user_with_groups_no_space_for_subject(
+        url_subjectsignup, create_user, groups, subjects, client):
+    group1, *_ = groups
+
+    def signup_user_id(id_):
+        login_pwd = 'user%d' % id_
+        create_user(login_pwd, login_pwd, is_admin=False, groups=[group1])
+        header = calc_auth_header_value(login_pwd, login_pwd)
+
+        return client.post(url_subjectsignup, data=json.dumps({'subject_id': 1}), headers=[header],
+                           content_type='application/json')
+
+    for i in range(1, 16):
+        res = signup_user_id(i)
+        assert res.status_code == 200
+        assert res.json == {'signed': {'subject_id': 1, 'user_id': i}}
+
+    res = signup_user_id(16)
+    assert res.status_code == 400
+    assert res.json == {'message': 'There is no space left on subject 1.'}
 
 
 def test_delete_subject_signup_unauthorized(db, client):

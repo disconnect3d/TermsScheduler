@@ -26,9 +26,12 @@ def db(app):
 
 @pytest.fixture
 def create_user(db):
-    def _create_user(username, password, is_admin):
+    def _create_user(username, password, is_admin, groups=None):
+        if not groups:
+            groups = []
+
         u = User(username=username, email='test@test.test', first_name='first_name', last_name='last_name',
-                 is_admin=is_admin)
+                 is_admin=is_admin, groups=groups)
         u.hash_password(password)
 
         db.session.add(u)

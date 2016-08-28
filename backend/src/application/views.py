@@ -87,7 +87,7 @@ class SubjectSignupList(Resource):
 
         if g.user.has_subject(args.subject_id):
             signed, = db.session.query(
-                func.count(SubjectSignup.subject_id)
+                func.count(SubjectSignup.user_id)
             ).filter(SubjectSignup.subject_id == args.subject_id).first()
 
             limit, = db.session.query(Subject.maximum_members).filter(Subject.id == args.subject_id).first()
