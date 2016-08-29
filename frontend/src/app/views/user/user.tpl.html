@@ -1,7 +1,7 @@
 <div>
     <table class="table">
         <tr ng-repeat="key in keys">
-            <td>{{ key }}</td>
+            <td>{{ key | pretty}}</td>
             <td>{{ user[key] }}</td>
         </tr>
     </table>
