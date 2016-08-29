@@ -3,15 +3,39 @@
         <thead>
         <tr>
             <td>Name</td>
-            <td>Ects</td>
+            <td>Description</td>
+
+            <td>Lecture hours</td>
+            <td>Exercises hours</td>
+            <td>Lab hours</td>
+            <td>Project hours</td>
+            <td>Seminar hours</td>
+
+            <td>Minimum members</td>
+            <td>Maximum members</td>
+
+            <td>ECTS</td>
+            <td>Syllabus</td>
             <td>Sign Up</td>
         </tr>
         </thead>
         <tbody>
         <tr ng-repeat="s in subjects">
             <td>{{ s.name }}</td>
+            <td>{{ s.description }}</td>
+
+            <td>{{ s.lecture_hours }}</td>
+            <td>{{ s.exercises_hours }}</td>
+            <td>{{ s.lab_hours }}</td>
+            <td>{{ s.project_hours }}</td>
+            <td>{{ s.seminar_hours }}</td>
+
+            <td>{{ s.minimum_members }}</td>
+            <td>{{ s.maximum_members }}</td>
+
             <td>{{ s.ects }}</td>
-            <td><input type="checkbox" ng-model="s.signed" ng-change="signUpToogle(s)"></td>
+            <td><a ng-href="s.syllabus_url">Link</a></td>
+            <td><input type="checkbox" ng-model="s.signed" ng-change="signUpToogle(s)" title="Sign Up"></td>
         </tr>
         </tbody>
     </table>

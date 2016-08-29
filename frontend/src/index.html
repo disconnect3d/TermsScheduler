@@ -50,7 +50,7 @@
     </nav>
     <div class="jumbotron">
         <div class="container">
-            <div class="col-sm-8 col-sm-offset-2">
+            <div class="col-sm-12">
                 <div ng-class="{ 'alert': flash, 'alert-success': flash.type === 'success', 'alert-danger': flash.type === 'error' }"
                      ng-if="flash" ng-bind="flash.message"></div>
                 <div ui-view></div>
