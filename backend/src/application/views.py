@@ -1,5 +1,4 @@
-from flask import json
-from flask import request, jsonify, url_for, g, Blueprint
+from flask import request, jsonify, g, Blueprint
 from flask.ext.restful import abort, Resource, reqparse
 
 from application import db
@@ -13,7 +12,11 @@ bp = Blueprint('api', __name__)
 @bp.route('/api/login')
 def get_auth_token():
     token = g.user.generate_auth_token(600)
-    return jsonify({'token': token.decode('ascii'), 'duration': 600})
+    return jsonify({
+        'token': token.decode('ascii'),
+        'duration': 600,
+        'id': g.user.id,
+    })
 
 
 user_parser = reqparse.RequestParser(bundle_errors=True)
@@ -30,15 +33,14 @@ class UserList(Resource):
         args = user_parser.parse_args(strict=True)
 
         if User.query.filter_by(username=args.username).first() is not None:
-            print("Abort - user already exists.")
-            abort(400)  # existing user
+            abort(400, message="User already exists")
 
         # TODO / FIXME: email validation ...
         user = User(username=args.username, first_name=args.first_name, last_name=args.last_name, email=args.email)
         user.hash_password(args.password)
         db.session.add(user)
         db.session.commit()
-        return {'username': user.username}, 201, {'Location': url_for('userresource', id=user.id, _external=True)}
+        return 201
 
 
 class UserResource(Resource):
@@ -106,7 +108,9 @@ class SubjectSignupList(Resource):
 class SubjectSignupResource(Resource):
     def delete(self, subject_id):
         if g.user.has_subject(subject_id):
-            SubjectSignup.query.filter(subject_id=subject_id, user_id=g.user.id).delete()
+            SubjectSignup.query.filter(SubjectSignup.subject_id == subject_id,
+                                       SubjectSignup.user_id == g.user.id).delete(synchronize_session=False)
+            db.session.expire_all()
             db.session.commit()
             return {}
 

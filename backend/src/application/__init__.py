@@ -4,6 +4,7 @@ from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.restful import Api
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.cors import CORS
 
 db = SQLAlchemy()
 auth = HTTPBasicAuth()
@@ -38,7 +39,7 @@ def create_app(config):
     api.add_resource(GroupList, '/api/groups')
     api.add_resource(SubjectList, '/api/subjects')
     api.add_resource(SubjectSignupList, '/api/subjects_signup')
-    api.add_resource(SubjectSignupResource, '/api/subjets_signup/<int:subject_id>')
+    api.add_resource(SubjectSignupResource, '/api/subjects_signup/<int:subject_id>')
 
     # Admin panel
     from application.models import User, Group
@@ -47,5 +48,7 @@ def create_app(config):
     admin = Admin(app)
     admin.add_view(UserAdminView(User, db.session))
     admin.add_view(ModelView(Group, db.session))
+
+    CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}})
 
     return app

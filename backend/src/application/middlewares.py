@@ -34,7 +34,7 @@ def require_login():
         endpoint = current_app.view_functions.get(request.endpoint, None)
 
         if hasattr(endpoint, 'view_class'):  # Checking for `is_public` in a `restful.Resource` API method
-            method_func = getattr(endpoint.view_class, request.method.lower())
+            method_func = getattr(endpoint.view_class, request.method.lower(), None)
             is_public_url = getattr(method_func, 'is_public', False)
         else:
             is_public_url = getattr(endpoint, 'is_public', False)
