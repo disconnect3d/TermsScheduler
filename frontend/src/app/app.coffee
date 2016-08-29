@@ -38,6 +38,7 @@ angular.module('TermsScheduler', [
     controllerAs: 'vm'
   })
   state($stateProvider, 'subjects')
+  state($stateProvider, 'user')
   $urlRouterProvider.otherwise('/')
 )
 

@@ -49,8 +49,10 @@ class UserResource(Resource):
 
         if not user:
             abort(400)
-
-        return {'username': user.username}
+        response = {c.name: getattr(user, c.name) for c in User.__table__.columns}
+        response.pop('is_admin')
+        response.pop('password_hash')
+        return response
 
 
 class GroupList(Resource):
@@ -132,7 +134,8 @@ term_signup_parser.add_argument('term_id', type=int, required=True)
 class TermSignupList(Resource):
     def get(self):
         # TODO / FIXME / WIP
-        ss = list(TermSignup.query.filter(TermSignup.user_id == g.user.id).join(Term).order_by(Term.day, Term.time_from))
+        ss = list(
+            TermSignup.query.filter(TermSignup.user_id == g.user.id).join(Term).order_by(Term.day, Term.time_from))
         return jsonify({'terms_signup': ss})
 
     def post(self):
@@ -140,11 +143,9 @@ class TermSignupList(Resource):
         args = term_signup_parser.parse_args(strict=True)
 
         if g.user.has_term(args.term_id):
-
             ts = TermSignup(term_id=args.term_id, user_id=g.user.id)
             db.session.add(ts)
             db.session.commit()
             return jsonify({'term_signup': ts})
-
 
         abort(400, message="You can't signup for subject %d." % args.subject_id)
