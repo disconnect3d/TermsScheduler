@@ -14,26 +14,26 @@ angular.module('TermsScheduler', [
   state = ($sp, name) ->
     $sp.state(name, {
       url: "/#{name}",
-      templateUrl: "#{name}/#{name}.tpl.html",
+      templateUrl: "views/#{name}/#{name}.tpl.html",
       controller: "#{cap(name)}Controller"
     })
 
   $stateProvider
   .state('login', {
     url: "/login",
-    templateUrl: 'login/login.tpl.html',
+    templateUrl: 'views/login/login.tpl.html',
     controller: 'LoginController',
     controllerAs: 'vm'
   })
   .state('register', {
     url: "/register",
-    templateUrl: 'register/register.tpl.html',
+    templateUrl: 'views/register/register.tpl.html',
     controller: 'RegisterController',
     controllerAs: 'vm'
   })
   .state('home', {
     url: "/",
-    templateUrl: 'home/home.tpl.html',
+    templateUrl: 'views/home/home.tpl.html',
     controller: 'HomeController',
     controllerAs: 'vm'
   })
