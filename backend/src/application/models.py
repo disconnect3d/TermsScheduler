@@ -79,16 +79,16 @@ class Group(db.Model):
     name = db.Column(db.String(64), index=True, unique=True, nullable=False)
 
     users = db.relationship('User', secondary='users_groups',
-                            backref=db.backref('groups', lazy='dynamic'))
+                            backref=db.backref('groups', lazy='select'))
 
     subjects = db.relationship('Subject', secondary='subjects_groups',
-                               backref=db.backref('groups', lazy='dynamic'))
+                               backref=db.backref('groups', lazy='select'))
 
     terms = db.relationship('Term', secondary='terms_groups',
-                            backref=db.backref('groups', lazy='dynamic'))
+                            backref=db.backref('groups', lazy='select'))
 
     def __repr__(self):
-        return "{id}: '{name}'".format(**self.__dict__)
+        return self.name
 
 
 class UserGroup(db.Model):
