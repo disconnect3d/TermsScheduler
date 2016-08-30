@@ -42,12 +42,15 @@ def create_app(config):
     api.add_resource(SubjectSignupResource, '/api/subjects_signup/<int:subject_id>')
 
     # Admin panel
-    from application.models import User, Group
-    from application.admin import UserAdminView
+    from application.models import User, Group, Subject, Term, TermSignup
+    from application.admin import UserAdminView, SubjectAdminView, TermAdminView, TermSignupAdminView
 
     admin = Admin(app)
     admin.add_view(UserAdminView(User, db.session))
     admin.add_view(ModelView(Group, db.session))
+    admin.add_view(SubjectAdminView(Subject, db.session))
+    admin.add_view(TermAdminView(Term, db.session))
+    admin.add_view(TermSignupAdminView(TermSignup, db.session))
 
     CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}})
 
