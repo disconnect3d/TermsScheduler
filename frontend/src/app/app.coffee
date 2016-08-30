@@ -10,35 +10,21 @@ angular.module('TermsScheduler', [
 .config(($stateProvider, $urlRouterProvider) ->
   # Can't inject it here
   cap = (string) -> string.charAt(0).toUpperCase() + string.slice(1)
-  state = ($sp, name) ->
-    $sp.state(name, {
+  state = ($sp, name, extraOptions = {})->
+    config = {
       url: "/#{name}",
       templateUrl: "views/#{name}/#{name}.tpl.html",
       controller: "#{cap(name)}Controller"
-    })
+    }
+    $sp.state(name, $.extend(config, extraOptions))
 
-  $stateProvider
-  .state('login', {
-    url: "/login",
-    templateUrl: 'views/login/login.tpl.html',
-    controller: 'LoginController',
-    controllerAs: 'vm'
-  })
-  .state('register', {
-    url: "/register",
-    templateUrl: 'views/register/register.tpl.html',
-    controller: 'RegisterController',
-    controllerAs: 'vm'
-  })
-  .state('home', {
-    url: "/",
-    templateUrl: 'views/home/home.tpl.html',
-    controller: 'HomeController',
-    controllerAs: 'vm'
-  })
+  state($stateProvider, 'login', {controllerAs: 'vm'})
+  state($stateProvider, 'register', {controllerAs: 'vm'})
+  state($stateProvider, 'home', {controllerAs: 'vm'})
   state($stateProvider, 'subjects')
   state($stateProvider, 'user')
-  $urlRouterProvider.otherwise('/')
+  state($stateProvider, 'terms', {params: {subject: null}})
+  $urlRouterProvider.otherwise('/home')
 )
 
 .run(($rootScope, $location, $cookieStore, $http) ->
