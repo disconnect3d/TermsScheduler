@@ -23,8 +23,12 @@ which adds useful [fixtures](http://pytest-flask.readthedocs.io/en/latest/featur
 To launch tests, simply fire:
 ```bash
 $ PYTHONPATH=. py.test
-
 ```
+
+NOTE: The `pdb` or `ipdb` debuggers `.set_trace()` method might fail if the`--capture=no` flag is not used.
+
+Also if you are debugging, the `-vvv` and `--pdb` flags might be helpful...
+
 
 ## Useful info for development
 
@@ -37,4 +41,6 @@ in order to make url being public, decorate it with `public_endpoint`.
 
 * The [orm examples](orm_examples.md) contains `python manage.py shell` logs showing 
 some usage of `SQLAlchemy`.
+
+* There's a `logsql` method inside the shell, which logs all SQL queries executed by SQLAlchemy.
 
