@@ -1,6 +1,3 @@
-cap = (string) ->
-  return string.charAt(0).toUpperCase() + string.slice(1)
-
 angular.module('TermsScheduler', [
   'ngCookies',
   'templates-app',
@@ -11,34 +8,23 @@ angular.module('TermsScheduler', [
   backendUrl: "http://localhost:5000/api/"
 })
 .config(($stateProvider, $urlRouterProvider) ->
-  state = ($sp, name) ->
-    $sp.state(name, {
+  # Can't inject it here
+  cap = (string) -> string.charAt(0).toUpperCase() + string.slice(1)
+  state = ($sp, name, extraOptions = {})->
+    config = {
       url: "/#{name}",
-      templateUrl: "#{name}/#{name}.tpl.html",
+      templateUrl: "views/#{name}/#{name}.tpl.html",
       controller: "#{cap(name)}Controller"
-    })
+    }
+    $sp.state(name, $.extend(config, extraOptions))
 
-  $stateProvider
-  .state('login', {
-    url: "/login",
-    templateUrl: 'login/login.tpl.html',
-    controller: 'LoginController',
-    controllerAs: 'vm'
-  })
-  .state('register', {
-    url: "/register",
-    templateUrl: 'register/register.tpl.html',
-    controller: 'RegisterController',
-    controllerAs: 'vm'
-  })
-  .state('home', {
-    url: "/",
-    templateUrl: 'home/home.tpl.html',
-    controller: 'HomeController',
-    controllerAs: 'vm'
-  })
+  state($stateProvider, 'login', {controllerAs: 'vm'})
+  state($stateProvider, 'register', {controllerAs: 'vm'})
+  state($stateProvider, 'home', {controllerAs: 'vm'})
   state($stateProvider, 'subjects')
-  $urlRouterProvider.otherwise('/')
+  state($stateProvider, 'user')
+  state($stateProvider, 'terms', {params: {subject: null}})
+  $urlRouterProvider.otherwise('/home')
 )
 
 .run(($rootScope, $location, $cookieStore, $http) ->
@@ -56,11 +42,14 @@ angular.module('TermsScheduler', [
   )
 )
 
-.controller('AppCtrl', ($scope) ->
-  $scope.pageTitle = 'Terms Scheduler'
-  $scope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) ->
-    if angular.isDefined(toState.name)
-      $scope.pageTitle = toState.name + ' | Terms Scheduler'
-      $scope.name = cap(toState.name)
-  )
-)
+.controller('AppCtrl', [
+  '$scope'
+  'utils'
+  ($scope, utils) ->
+    $scope.pageTitle = 'Terms Scheduler'
+    $scope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) ->
+      if angular.isDefined(toState.name)
+        $scope.pageTitle = toState.name + ' | Terms Scheduler'
+        $scope.name = utils.capitalize(toState.name)
+    )
+])

@@ -94,8 +94,7 @@ def test_create_user(url_userlist, db, client):
     }
 
     res = client.post(url_userlist, data=json.dumps(data), content_type='application/json')
-    assert res.status_code == 201
-    assert res.headers.get('Location').endswith('/api/users/1') == True
+    assert res.status_code == 200
 
 
 def test_get_user_unauthorized(db, client):
@@ -106,7 +105,13 @@ def test_get_user_unauthorized(db, client):
 def test_get_user_authorized(auth_header1, db, client):
     res = client.get(url_for('userresource', id=1),  headers=[auth_header1])
     assert res.status_code == 200
-    assert res.json == {'username': 'user1'}
+    assert res.json == {
+        'id': 1,
+        'username': 'user1',
+        'first_name': 'first_name',
+        'last_name': 'last_name',
+        'email': 'test@test.test'
+    }
 
 
 def test_login_no_credentials_unauthorized(url_get_auth_token, db, client):
@@ -125,7 +130,8 @@ def test_login_authorized_by_token(url_get_auth_token, auth_header1, user1, clie
     res = client.get(url_get_auth_token, headers=[auth_header1])
 
     assert res.status_code == 200
-    assert set(res.json.keys()) == {'duration', 'token'}
+    assert set(res.json.keys()) == {'id', 'duration', 'token'}
+    assert res.json['id'] == 1
     assert res.json['token'] == user1.generate_auth_token(600).decode('ascii')
     assert res.json['duration'] == 600
 

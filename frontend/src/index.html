@@ -40,6 +40,7 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">{{globals.currentUser.username}}<span class="caret"></span></a>
                         <ul class="dropdown-menu">
+                            <li><a ui-sref="user">Your Profile</a></li>
                             <li><a ui-sref="login">Logout</a></li>
                         </ul>
                     </li>
@@ -49,7 +50,7 @@
     </nav>
     <div class="jumbotron">
         <div class="container">
-            <div class="col-sm-8 col-sm-offset-2">
+            <div class="col-sm-12">
                 <div ng-class="{ 'alert': flash, 'alert-success': flash.type === 'success', 'alert-danger': flash.type === 'error' }"
                      ng-if="flash" ng-bind="flash.message"></div>
                 <div ui-view></div>

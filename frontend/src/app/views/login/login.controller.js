@@ -5,8 +5,8 @@
         .module('TermsScheduler')
         .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$location', 'AuthenticationService', 'FlashService'];
-    function LoginController($location, AuthenticationService, FlashService) {
+    LoginController.$inject = ['$state', 'AuthenticationService', 'FlashService'];
+    function LoginController($state, AuthenticationService, FlashService) {
         var vm = this;
 
         vm.login = login;
@@ -21,7 +21,7 @@
             AuthenticationService.Login(vm.username, vm.password,
                 function () {
                     vm.dataLoading = false;
-                    $location.path('/');
+                    $state.go('home');
                 },
                 function () {
                     vm.dataLoading = false;
