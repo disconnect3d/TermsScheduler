@@ -1,0 +1,14 @@
+FROM python:3.5
+
+COPY ./backend/requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+
+WORKDIR /code
+COPY ./backend/src /code
+
+RUN groupadd -r backend && useradd -r -g backend backend && chown backend:backend -R /code
+USER backend
+
+RUN cd /code
+
+CMD ["python", "manage.py", "runserver", "-h", "0.0.0.0"]
