@@ -1,0 +1,21 @@
+version: '2'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile-backend
+    ports:
+    - "5000:5000"
+    volumes:
+    - ./logs/backend:/var/log
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-frontend
+    ports:
+    - "8282:8282"
+    links:
+    - backend
+    volumes:
+    - ./logs/frontend:/var/log
