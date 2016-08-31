@@ -1,13 +1,13 @@
+import datetime
 import random
 from itertools import count
 
-import datetime
 from flask.ext.script import Command
 from passlib.apps import custom_app_context as pwd_context
 
 from application import db
 from application.enums import TermType, Day
-from application.models import User, Group, UserGroup, Subject, SubjectGroup, Term, Settings, TermGroup
+from application.models import User, Group, UserGroup, Subject, SubjectGroup, Term, Setting, TermGroup
 
 
 class AddDevData(Command):
@@ -101,7 +101,7 @@ class AddDevData(Command):
         db.session.execute(TermGroup.__table__.insert(), [{'term_id': t['id'], 'group_id': 1} for t in terms])
 
         db.session.execute(
-            Settings.__table__.insert(),
+            Setting.__table__.insert(),
             [
                 {
                     'name': 'SUBJECTS_SIGNUP',
@@ -118,11 +118,11 @@ class AddDevData(Command):
 
                 ## Terms signup related
                 {
-                    'name': 'PTS_FOR_ALL',   # Punkty dostępne dla wszystkich przedmiotów
+                    'name': 'PTS_FOR_ALL',  # Punkty dostępne dla wszystkich przedmiotów
                     'value': '14'
                 },
                 {
-                    'name': 'PTS_PER_SUB',   # Punkty dostępne dla pojedynczego przedmiotu
+                    'name': 'PTS_PER_SUB',  # Punkty dostępne dla pojedynczego przedmiotu
                     'value': '15'
                 },
                 {

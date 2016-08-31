@@ -5,7 +5,7 @@ from sqlalchemy import func
 
 from application import db
 from application.decorators import public_endpoint, require_admin
-from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term, TermGroup, Settings
+from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term, TermGroup, Setting
 from application.utils import DefaultOrderedDict
 
 bp = Blueprint('api', __name__)
@@ -123,7 +123,7 @@ class SubjectSignupResource(Resource):
 
 class SettingList(Resource):
     def get(self):
-        settings = Settings.query.filter(Settings.name.in_(app.config['SETTINGS_IN_DB']))
+        settings = Setting.query.filter(Setting.name.in_(app.config['SETTINGS_IN_DB'])).order_by(Setting.name)
         return jsonify({'settings': list(settings)})
 
 

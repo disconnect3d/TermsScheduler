@@ -1,13 +1,13 @@
-"""Added Settings model
+"""Added Setting model
 
-Revision ID: 61cec107e621
+Revision ID: c28a914bd50d
 Revises: 8e49c4425462
-Create Date: 2016-08-31 21:40:48.172851
+Create Date: 2016-08-31 23:30:57.629196
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '61cec107e621'
+revision = 'c28a914bd50d'
 down_revision = '8e49c4425462'
 
 from alembic import op

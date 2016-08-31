@@ -169,7 +169,7 @@ class TermSignup(db.Model):
     is_assigned = db.Column(db.Boolean, nullable=False, default=False)
 
 
-class Settings(db.Model):
+class Setting(db.Model):
     __tablename__ = 'settings'
     name = db.Column(db.String, primary_key=True)
     value = db.Column(db.String, primary_key=True)
