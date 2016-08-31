@@ -104,6 +104,20 @@ class AddDevData(Command):
             Settings.__table__.insert(),
             [
                 {
+                    'name': 'SUBJECTS_SIGNUP',
+                    'value': '1'
+                },
+                {
+                    'name': 'TERMS_SIGNUP',
+                    'value': '1'
+                },
+                {
+                    'name': 'SHOW_TERM_RESULTS',
+                    'value': '0'
+                },
+
+                ## Terms signup related
+                {
                     'name': 'PTS_FOR_ALL',   # Punkty dostępne dla wszystkich przedmiotów
                     'value': '14'
                 },
@@ -118,14 +132,6 @@ class AddDevData(Command):
                 {
                     'name': 'MAX_PTS_PER_TERM',
                     'value': '10'
-                },
-                {
-                    'name': 'SIGNUP',
-                    'value': '1'
-                },
-                {
-                    'name': 'SHOW_RESULTS',
-                    'value': '0'
                 },
             ]
         )
