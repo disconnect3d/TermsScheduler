@@ -160,7 +160,7 @@ class TermSignup(db.Model):
     __tablename__ = 'terms_signup'
     term_id = db.Column(db.Integer, db.ForeignKey(Term.id), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
-    points = db.Column(db.Integer, nullable=False, min=0)
+    points = db.Column(db.Integer, nullable=False)
     reason = db.Column(db.String, nullable=False, default='')
 
     reason_accepted = db.Column(db.Boolean, nullable=False, default=False)
