@@ -33,7 +33,7 @@ def create_app(config):
     app.register_blueprint(bp_auth)
 
     from application.views import UserList, UserResource, GroupList, SubjectList, SubjectSignupList, \
-        SubjectSignupResource, TermSignupAction
+        SubjectSignupResource, TermSignupAction, SettingList
 
     api.add_resource(UserList, '/api/users')
     api.add_resource(UserResource, '/api/users/<int:id>')
@@ -42,9 +42,10 @@ def create_app(config):
     api.add_resource(SubjectSignupList, '/api/subjects_signup')
     api.add_resource(SubjectSignupResource, '/api/subjects_signup/<int:subject_id>')
     api.add_resource(TermSignupAction, '/api/terms/signup')
+    api.add_resource(SettingList, '/api/settings')
 
     # Admin panel
-    from application.models import User, Group, Subject, Term, TermSignup
+    from application.models import User, Group, Subject, Term, TermSignup, Settings
     from application.admin import UserAdminView, SubjectAdminView, TermAdminView, TermSignupAdminView
 
     admin = Admin(app)
@@ -53,6 +54,7 @@ def create_app(config):
     admin.add_view(SubjectAdminView(Subject, db.session))
     admin.add_view(TermAdminView(Term, db.session))
     admin.add_view(TermSignupAdminView(TermSignup, db.session))
+    admin.add_view(ModelView(Settings, db.session))
 
     CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}})
 

@@ -160,13 +160,19 @@ class TermSignup(db.Model):
     __tablename__ = 'terms_signup'
     term_id = db.Column(db.Integer, db.ForeignKey(Term.id), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
-    points = db.Column(db.Integer, nullable=False)  # TODO/FIXME: Maybe min/max constraint?
+    points = db.Column(db.Integer, nullable=False, min=0)
     reason = db.Column(db.String, nullable=False, default='')
 
     reason_accepted = db.Column(db.Boolean, nullable=False, default=False)
     reason_accepted_by = db.Column(db.ForeignKey(User.id), nullable=True, default=None)
 
     is_assigned = db.Column(db.Boolean, nullable=False, default=False)
+
+
+class Settings(db.Model):
+    __tablename__ = 'settings'
+    name = db.Column(db.String, primary_key=True)
+    value = db.Column(db.String, primary_key=True)
 
 
 @auth.verify_password

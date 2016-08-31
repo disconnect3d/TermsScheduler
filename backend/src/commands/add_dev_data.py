@@ -7,7 +7,7 @@ from passlib.apps import custom_app_context as pwd_context
 
 from application import db
 from application.enums import TermType, Day
-from application.models import User, Group, UserGroup, Subject, SubjectGroup, Term
+from application.models import User, Group, UserGroup, Subject, SubjectGroup, Term, Settings
 
 
 class AddDevData(Command):
@@ -98,4 +98,34 @@ class AddDevData(Command):
         db.session.execute(
             Term.__table__.insert(),
             [term_stub(s) for x in range(0, 3) for s in subjects]
+        )
+
+        db.session.execute(
+            Settings.__table__.insert(),
+            [
+                {
+                    'name': 'PTS_FOR_ALL',   # Punkty dostępne dla wszystkich przedmiotów
+                    'value': '14'
+                },
+                {
+                    'name': 'PTS_PER_SUB',   # Punkty dostępne dla pojedynczego przedmiotu
+                    'value': '15'
+                },
+                {
+                    'name': 'PTS_PER_TERM',  # Punkty dostępne dla pojedynczego terminu
+                    'value': '10'
+                },
+                {
+                    'name': 'MAX_PTS_PER_TERM',
+                    'value': '10'
+                },
+                {
+                    'name': 'SIGNUP',
+                    'value': '1'
+                },
+                {
+                    'name': 'SHOW_RESULTS',
+                    'value': '0'
+                },
+            ]
         )

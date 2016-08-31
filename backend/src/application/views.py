@@ -1,13 +1,11 @@
-from collections import defaultdict
-
+from flask import current_app as app
 from flask import request, jsonify, g, Blueprint
 from flask.ext.restful import abort, Resource, reqparse
+from sqlalchemy import func
 
 from application import db
 from application.decorators import public_endpoint, require_admin
-from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term, TermGroup
-from sqlalchemy import func
-
+from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term, TermGroup, Settings
 from application.utils import DefaultOrderedDict
 
 bp = Blueprint('api', __name__)
@@ -123,12 +121,10 @@ class SubjectSignupResource(Resource):
         abort(400, message="Can't delete subject you are not signed on.")
 
 
-class SubjectWithTermList(Resource):
+class SettingList(Resource):
     def get(self):
-        """
-        :return: List of terms that can be chosen by particular user.
-        """
-        return jsonify
+        settings = Settings.query.filter(Settings.name.in_(app.config['SETTINGS_IN_DB']))
+        return jsonify({'settings': list(settings)})
 
 
 class TermSignupAction(Resource):
@@ -172,7 +168,7 @@ class TermSignupAction(Resource):
                 ]
             } for subject_name, type_terms_dict in subjects_terms.items()
             for term_type, terms in type_terms_dict.items()
-        ]
+            ]
 
         return jsonify({'subjects_terms': subjects_terms_aggregated})
 
@@ -203,7 +199,6 @@ class TermSignupAction(Resource):
                 raise Exception('Invalid json format.')
 
             for term_signup in j['terms_signup']:
-
                 term_id = term_signup['term_id']
                 reason = term_signup['reason']
 
@@ -234,4 +229,3 @@ class TermSignupAction(Resource):
         db.session.add_all(terms_signup)
         db.session.commit()
         return {}
-
