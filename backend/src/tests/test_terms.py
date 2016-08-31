@@ -73,9 +73,9 @@ def test_get_terms_for_user_with_groups(url_termsignup, terms, db, auth_header1,
                     {
                         'term_type': 'Laboratory',
                         'terms': [
-                            [1, 'Monday', '08:30', '10:00'],
-                            [2, 'Tuesday', '09:30', '11:00'],
-                            [3, 'Wednesday', '08:30', '10:00']
+                            {'id': 1, 'day': 'Monday', 'time_from': '08:30', 'time_to': '10:00'},
+                            {'id': 2, 'day': 'Tuesday', 'time_from': '09:30', 'time_to': '11:00'},
+                            {'id': 3, 'day': 'Wednesday', 'time_from': '08:30', 'time_to': '10:00'}
                         ]
                     }
                 ]
@@ -86,7 +86,7 @@ def test_get_terms_for_user_with_groups(url_termsignup, terms, db, auth_header1,
                     {
                         'term_type': 'Laboratory',
                         'terms': [
-                            [5, 'Tuesday', '19:00', '21:00']
+                            {'id': 5, 'day': 'Tuesday', 'time_from': '19:00', 'time_to': '21:00'}
                         ]
                     }
                 ]
@@ -95,7 +95,8 @@ def test_get_terms_for_user_with_groups(url_termsignup, terms, db, auth_header1,
     }
 
 
-def test_post_terms_for_user_with_groups_missing_terms(url_termsignup, terms, db, auth_header1, user1_with_1_group, client):
+def test_post_terms_for_user_with_groups_missing_terms(
+        url_termsignup, terms, db, auth_header1, user1_with_1_group, client):
     terms_signup = {
         'terms_signup': [
             {

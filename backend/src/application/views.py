@@ -155,7 +155,7 @@ class TermSignupAction(Resource):
 
         for record in res:
             subject_name, term_type, *term_data = record
-            subjects_terms[subject_name][term_type].append(term_data)
+            subjects_terms[subject_name][term_type].append(dict(zip(record._fields[2:], record[2:])))
 
         subjects_terms_aggregated = [
             {
