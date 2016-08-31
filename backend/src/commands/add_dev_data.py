@@ -7,7 +7,7 @@ from passlib.apps import custom_app_context as pwd_context
 
 from application import db
 from application.enums import TermType, Day
-from application.models import User, Group, UserGroup, Subject, SubjectGroup, Term, Settings
+from application.models import User, Group, UserGroup, Subject, SubjectGroup, Term, Settings, TermGroup
 
 
 class AddDevData(Command):
@@ -95,10 +95,10 @@ class AddDevData(Command):
                 'time_to': datetime.time(hour + 1)
             }
 
-        db.session.execute(
-            Term.__table__.insert(),
-            [term_stub(s) for x in range(0, 3) for s in subjects]
-        )
+        terms = [term_stub(s) for x in range(0, 3) for s in subjects]
+        db.session.execute(Term.__table__.insert(), terms)
+
+        db.session.execute(TermGroup.__table__.insert(), [{'term_id': t['id'], 'group_id': 1} for t in terms])
 
         db.session.execute(
             Settings.__table__.insert(),
