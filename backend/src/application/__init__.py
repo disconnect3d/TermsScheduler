@@ -33,7 +33,7 @@ def create_app(config):
     app.register_blueprint(bp_auth)
 
     from application.views import UserList, UserResource, GroupList, SubjectList, SubjectSignupList, \
-        SubjectSignupResource, TermList, TermSignupList
+        SubjectSignupResource, TermSignupAction
 
     api.add_resource(UserList, '/api/users')
     api.add_resource(UserResource, '/api/users/<int:id>')
@@ -41,8 +41,7 @@ def create_app(config):
     api.add_resource(SubjectList, '/api/subjects')
     api.add_resource(SubjectSignupList, '/api/subjects_signup')
     api.add_resource(SubjectSignupResource, '/api/subjects_signup/<int:subject_id>')
-    api.add_resource(TermList, '/api/terms')
-    api.add_resource(TermSignupList, '/api/subjects_signup')
+    api.add_resource(TermSignupAction, '/api/terms/signup')
 
     # Admin panel
     from application.models import User, Group, Subject, Term, TermSignup
