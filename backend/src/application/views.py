@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from flask import request, jsonify, g, Blueprint
 from flask.ext.restful import abort, Resource, reqparse
 
@@ -5,6 +7,8 @@ from application import db
 from application.decorators import public_endpoint, require_admin
 from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term, TermGroup
 from sqlalchemy import func
+
+from application.utils import DefaultOrderedDict
 
 bp = Blueprint('api', __name__)
 
@@ -133,10 +137,50 @@ term_signup_parser.add_argument('term_id', type=int, required=True)
 
 class TermList(Resource):
     def get(self):
-        fields = (Subject.id, Subject.name, Term.id, Term.day, Term.time_from, Term.time_to)
-        res = db.session.query(*fields).join(Term).join(TermGroup).filter(
-            TermGroup.group_id.in_([i.id for i in g.user.groups]))
-        return jsonify({'terms': list(res)})
+        """
+        Returns json in form:
+        {
+            'subject_terms': [
+                {
+                    "subject_name": "math",
+                    "terms_aggregated": [
+                        {
+                            'term_type': 'Exercises',
+                            'terms': [ ... ]
+                        }
+                    ]
+                },
+                ...
+            ]
+        }
+        """
+        from manage import logsql
+        logsql()
+        fields = (Subject.name, Term.type, Term.id, Term.day, Term.time_from, Term.time_to)
+        res = db.session.query(*fields).join(Term).join(TermGroup) \
+            .filter(TermGroup.group_id.in_([i.id for i in g.user.groups])) \
+            .order_by(Subject.name, Term.day, Term.time_from)
+
+        subjects_terms = DefaultOrderedDict(lambda: DefaultOrderedDict(lambda: []))
+
+        for record in res:
+            subject_name, term_type, *term_data = record
+            subjects_terms[subject_name][term_type].append(term_data)
+
+        subjects_terms_aggregated = [
+            {
+                'subject_name': subject_name,
+                'terms_aggregated': [
+                    {
+                        'term_type': term_type,
+                        'terms': terms
+                    }
+                ]
+            } for subject_name, type_terms_dict in subjects_terms.items()
+            for term_type, terms in type_terms_dict.items()
+        ]
+
+        return jsonify({'subjects_terms': subjects_terms_aggregated})
 
 
 class TermSignupList(Resource):

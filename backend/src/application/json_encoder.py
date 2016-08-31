@@ -1,8 +1,8 @@
 import enum
-
 from datetime import time
-from sqlalchemy.ext.declarative import DeclarativeMeta
+
 from flask import json
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
 # Copied from http://stackoverflow.com/a/31569287/1508881

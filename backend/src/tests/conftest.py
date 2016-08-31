@@ -79,6 +79,14 @@ def groups(db):
 
 
 @pytest.fixture
+def user1_with_1_group(user1, groups, db):
+    user1.groups.extend(groups[:1])
+    db.session.add(user1)
+    db.session.commit()
+    return user1
+
+
+@pytest.fixture
 def user1_with_2_groups(user1, groups, db):
     user1.groups.extend(groups[:2])
     db.session.add(user1)
