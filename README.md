@@ -27,4 +27,9 @@ The backend container will be exposed to port 5000 and the frontend one to 8282 
 **IMPORTANT NOTE: Currently, the docker containers use debug settings, so don't use it for deployment.**
 
 
+### Authors
+
+* backend - [Dominik Czarnota](https://github.com/disconnect3d/)
+* frontend - [Aleksander Kawala](https://github.com/Alexander3/)
+
 The backend part has been written for a university course "Advanced Web Technologies" at AGH University of Science and Technology.
