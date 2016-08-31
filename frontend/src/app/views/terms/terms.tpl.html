@@ -1,7 +1,31 @@
 <div>
-    {{subject}}
-    <br><br><br>
-    Show possible terems for subject
-    <br>
-    allow subscrbing
+    <ul>
+        <li ng-repeat="sub in terms">{{sub.subject_name}}
+            <ul>
+                <li ng-repeat="termType in sub.terms_aggregated">{{termType.term_type}}
+                    <table class="table">
+                        <tr ng-repeat="term in termType.terms">
+                            <td>{{term.day}} {{term.time_from}}-{{term.time_to}}</td>
+                            <td><select
+                                    ng-init="termSubscriptions[term.id].points=1"
+                                    ng-model="termSubscriptions[term.id].points"
+                                    ng-options="x for x in [0,1,2,3,4,5,6,7,8,9,10]" title="Points">
+                                required="required"
+                            </select>
+                            </td>
+                            <td>
+                            <label ng-style="{'visibility': termSubscriptions[term.id].points == 0?'visible':'hidden'}">
+                                Reason:
+                                <input type="text" name="reason"
+                                       ng-init="termSubscriptions[term.id].reason=''"
+                                       ng-model="termSubscriptions[term.id].reason"/>
+                            </label>
+                            </td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <a class="btn btn-primary" ng-click="save()">Save</a>
 </div>

@@ -1,11 +1,19 @@
 angular.module('TermsScheduler').controller 'TermsController', [
   '$scope'
-  '$state'
-  '$stateParams'
+  'TermsService'
   'FlashService'
-  ($scope, $state, $stateParams, FlashService) ->
-    if !$stateParams.subject
-      $state.go('subjects')
-    $scope.subject = $stateParams.subject
+  ($scope, TermsService, FlashService) ->
+    TermsService.Get().then(
+      (terms)->
+        $scope.terms = terms
+        $scope.termSubscriptions = []
+      (error)-> FlashService.Error(error)
+    )
+
+    $scope.save = ()->
+      $scope.termSubscriptions
+      TermsService.SaveTermsSignup(
+        $scope.termSubscriptions.map((term, id)-> term.term_id = id; return term)
+      ).then(null, (error)-> FlashService.Error(error))
     return
 ]
