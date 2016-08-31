@@ -17,7 +17,6 @@
             <td>ECTS</td>
             <td>Syllabus</td>
             <td>Sign Up</td>
-            <td>Terms</td>
         </tr>
         </thead>
         <tbody>
@@ -37,7 +36,6 @@
             <td>{{ s.ects }}</td>
             <td><a ng-href="s.syllabus_url">Link</a></td>
             <td><input type="checkbox" ng-model="s.signed" ng-change="signUpToogle(s)" title="Sign Up"></td>
-            <td><a class="btn btn-xs btn-primary" ui-sref="terms({subject:s})">Pick</a></td>
         </tr>
         </tbody>
     </table>

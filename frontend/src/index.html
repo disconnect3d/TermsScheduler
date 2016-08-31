@@ -34,7 +34,11 @@
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="nav navbar-nav">
+                    <li><a ui-sref="subjects">Subjects</a></li>
+                    <li><a ui-sref="terms">Terms</a></li>
+                </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown" ng-show="globals.currentUser.username">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"

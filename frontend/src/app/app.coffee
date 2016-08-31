@@ -23,7 +23,7 @@ angular.module('TermsScheduler', [
   state($stateProvider, 'home', {controllerAs: 'vm'})
   state($stateProvider, 'subjects')
   state($stateProvider, 'user')
-  state($stateProvider, 'terms', {params: {subject: null}})
+  state($stateProvider, 'terms')
   $urlRouterProvider.otherwise('/home')
 )
 
