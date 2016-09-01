@@ -22,4 +22,7 @@ RUN chown backend:backend -R /code
 
 RUN cd /code
 
+RUN python manage.py db upgrade
+RUN python manage.py add_dev_data
+
 CMD ["python", "manage.py", "runserver", "-h", "0.0.0.0"]
