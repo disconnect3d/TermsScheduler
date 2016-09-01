@@ -146,8 +146,15 @@ class TermSignupAction(Resource):
             ]
         }
         """
-        fields = (Subject.name, Term.type, Term.id, Term.day, Term.time_from, Term.time_to)
-        res = db.session.query(*fields).join(Term).join(TermGroup) \
+        fields = (
+            Subject.name, Term.type, Term.id, Term.day, Term.time_from, Term.time_to,
+            TermSignup.points, TermSignup.reason, TermSignup.reason_accepted
+        )
+
+        res = db.session.query(*fields) \
+            .join(Term) \
+            .join(TermGroup) \
+            .outerjoin(TermSignup) \
             .filter(TermGroup.group_id.in_([i.id for i in g.user.groups])) \
             .order_by(Subject.name, Term.day, Term.time_from)
 
@@ -155,7 +162,16 @@ class TermSignupAction(Resource):
 
         for record in res:
             subject_name, term_type, *term_data = record
-            subjects_terms[subject_name][term_type].append(dict(zip(record._fields[2:], record[2:])))
+
+            term_data = dict(zip(record._fields[2:], record[2:]))
+
+            # If there is no matching TermSignup, set defaults
+            if term_data['points'] is None:
+                term_data['points'] = 0
+                term_data['reason'] = ''
+                term_data['reason_accepted'] = False
+
+            subjects_terms[subject_name][term_type].append(term_data)
 
         subjects_terms_aggregated = [
             {

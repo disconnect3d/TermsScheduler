@@ -73,9 +73,12 @@ def test_get_terms_for_user_with_groups(url_termsignup, terms, db, auth_header1,
                     {
                         'term_type': 'Laboratory',
                         'terms': [
-                            {'id': 1, 'day': 'Monday', 'time_from': '08:30', 'time_to': '10:00'},
-                            {'id': 2, 'day': 'Tuesday', 'time_from': '09:30', 'time_to': '11:00'},
-                            {'id': 3, 'day': 'Wednesday', 'time_from': '08:30', 'time_to': '10:00'}
+                            {'id': 1, 'day': 'Monday', 'time_from': '08:30', 'time_to': '10:00',
+                             'points': 0, 'reason': '', 'reason_accepted': False},
+                            {'id': 2, 'day': 'Tuesday', 'time_from': '09:30', 'time_to': '11:00',
+                             'points': 0, 'reason': '', 'reason_accepted': False},
+                            {'id': 3, 'day': 'Wednesday', 'time_from': '08:30', 'time_to': '10:00',
+                             'points': 0, 'reason': '', 'reason_accepted': False}
                         ]
                     }
                 ]
@@ -86,7 +89,8 @@ def test_get_terms_for_user_with_groups(url_termsignup, terms, db, auth_header1,
                     {
                         'term_type': 'Laboratory',
                         'terms': [
-                            {'id': 5, 'day': 'Tuesday', 'time_from': '19:00', 'time_to': '21:00'}
+                            {'id': 5, 'day': 'Tuesday', 'time_from': '19:00', 'time_to': '21:00',
+                             'points': 0, 'reason': '', 'reason_accepted': False}
                         ]
                     }
                 ]
