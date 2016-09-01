@@ -6,8 +6,19 @@ RUN pip install -r /tmp/requirements.txt
 WORKDIR /code
 COPY ./backend/src /code
 
+#### - - - WORKAROUND FOR BUG IN AUFS - - -
+## For more details see:
+#   * https://github.com/docker/docker/issues/783
+#   * https://github.com/docker-library/tomcat/issues/35
+
+RUN mv /code /code-tmp && mv /code-tmp /code && chmod -R 775 /code
+
+#### - - - END OF WORKAROUND - -
+
 RUN groupadd -r backend && useradd -r -g backend backend && chown backend:backend -R /code
 USER backend
+
+RUN chown backend:backend -R /code
 
 RUN cd /code
 

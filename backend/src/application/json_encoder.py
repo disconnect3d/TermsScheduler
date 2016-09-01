@@ -1,5 +1,8 @@
-from sqlalchemy.ext.declarative import DeclarativeMeta
+import enum
+from datetime import time
+
 from flask import json
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
 # Copied from http://stackoverflow.com/a/31569287/1508881
@@ -16,4 +19,11 @@ class AlchemyEncoder(json.JSONEncoder):
                 except TypeError:
                     data[field] = None
             return data
+
+        elif isinstance(o, enum.Enum):
+            return o.value
+
+        elif isinstance(o, time):
+            return o.strftime('%H:%M')
+
         return json.JSONEncoder.default(self, o)

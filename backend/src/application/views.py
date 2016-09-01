@@ -1,10 +1,12 @@
+from flask import current_app as app
 from flask import request, jsonify, g, Blueprint
 from flask.ext.restful import abort, Resource, reqparse
+from sqlalchemy import func
 
 from application import db
 from application.decorators import public_endpoint, require_admin
-from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term
-from sqlalchemy import func
+from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term, TermGroup, Setting
+from application.utils import DefaultOrderedDict
 
 bp = Blueprint('api', __name__)
 
@@ -119,33 +121,111 @@ class SubjectSignupResource(Resource):
         abort(400, message="Can't delete subject you are not signed on.")
 
 
-class SubjectWithTermList(Resource):
+class SettingList(Resource):
+    def get(self):
+        settings = Setting.query.filter(Setting.name.in_(app.config['SETTINGS_IN_DB'])).order_by(Setting.name)
+        return jsonify({'settings': list(settings)})
+
+
+class TermSignupAction(Resource):
     def get(self):
         """
-        :return: List of terms that can be chosen by particular user.
+        Returns json in form:
+        {
+            'subject_terms': [
+                {
+                    "subject_name": "math",
+                    "terms_aggregated": [
+                        {
+                            'term_type': 'Exercises',
+                            'terms': [ ... ]
+                        }
+                    ]
+                },
+                ...
+            ]
+        }
         """
-        return jsonify
+        fields = (Subject.name, Term.type, Term.id, Term.day, Term.time_from, Term.time_to)
+        res = db.session.query(*fields).join(Term).join(TermGroup) \
+            .filter(TermGroup.group_id.in_([i.id for i in g.user.groups])) \
+            .order_by(Subject.name, Term.day, Term.time_from)
 
+        subjects_terms = DefaultOrderedDict(lambda: DefaultOrderedDict(lambda: []))
 
-term_signup_parser = reqparse.RequestParser(bundle_errors=True)
-term_signup_parser.add_argument('term_id', type=int, required=True)
+        for record in res:
+            subject_name, term_type, *term_data = record
+            subjects_terms[subject_name][term_type].append(dict(zip(record._fields[2:], record[2:])))
 
+        subjects_terms_aggregated = [
+            {
+                'subject_name': subject_name,
+                'terms_aggregated': [
+                    {
+                        'term_type': term_type,
+                        'terms': terms
+                    }
+                ]
+            } for subject_name, type_terms_dict in subjects_terms.items()
+            for term_type, terms in type_terms_dict.items()
+            ]
 
-class TermSignupList(Resource):
-    def get(self):
-        # TODO / FIXME / WIP
-        ss = list(
-            TermSignup.query.filter(TermSignup.user_id == g.user.id).join(Term).order_by(Term.day, Term.time_from))
-        return jsonify({'terms_signup': ss})
+        return jsonify({'subjects_terms': subjects_terms_aggregated})
 
     def post(self):
-        # TODO / FIXME / WIP
-        args = term_signup_parser.parse_args(strict=True)
+        """
+        Expects JSON of form:
+        {
+            'terms_signup': [
+                {
+                    'term_id': 1,
+                    'points': 5,
+                    'reason': 'bla bla bla',    // OR EMPTY STRING
+                },
+                ...
+            ]
+        }
+        """
 
-        if g.user.has_term(args.term_id):
-            ts = TermSignup(term_id=args.term_id, user_id=g.user.id)
-            db.session.add(ts)
-            db.session.commit()
-            return jsonify({'term_signup': ts})
+        # TODO / FIXME : use something better than hand made json validation
+        # RequestParser can't really handle nested jsons well, maybe flask-marshmallow?
 
-        abort(400, message="You can't signup for subject %d." % args.subject_id)
+        terms_signup = []
+        term_ids = []
+        try:
+            j = request.json
+
+            if set(j.keys()) != {'terms_signup'}:
+                raise Exception('Invalid json format.')
+
+            for term_signup in j['terms_signup']:
+                term_id = term_signup['term_id']
+                reason = term_signup['reason']
+
+                ts = TermSignup(
+                    term_id=term_id,
+                    user_id=g.user.id,
+                    points=term_signup['points'] if not reason else 0,
+                    reason=reason
+                )
+                term_ids.append(term_id)
+                terms_signup.append(ts)
+
+            if len(term_ids) != len(set(term_ids)):
+                raise Exception('Duplicated term_ids.')
+
+        except Exception as e:
+            print('Exception while parsing TermSignupAction post JSON: "%s"' % e)
+            abort(400, message='Invalid json format.')
+
+        # Checking if the json contains ALL terms user had to set points on
+        grps = [i.id for i in g.user.groups]
+        expected_term_ids = db.session.query(Term.id).join(TermGroup).filter(TermGroup.group_id.in_(grps))
+        expected_term_ids = (i for i, in expected_term_ids)
+
+        if set(term_ids) != set(expected_term_ids):
+            abort(400, message='Missing term_ids in terms_signups list.')
+
+        db.session.add_all(terms_signup)
+        db.session.commit()
+        return {}

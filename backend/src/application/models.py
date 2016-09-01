@@ -3,6 +3,7 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy import and_, event
+from sqlalchemy.orm import validates
 
 from application import db, auth
 from application.enums import Day, TermType
@@ -159,7 +160,7 @@ class TermSignup(db.Model):
     __tablename__ = 'terms_signup'
     term_id = db.Column(db.Integer, db.ForeignKey(Term.id), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
-    points = db.Column(db.Integer, nullable=False)  # TODO/FIXME: Maybe min/max constraint?
+    points = db.Column(db.Integer, nullable=False)
     reason = db.Column(db.String, nullable=False, default='')
 
     reason_accepted = db.Column(db.Boolean, nullable=False, default=False)
@@ -168,13 +169,10 @@ class TermSignup(db.Model):
     is_assigned = db.Column(db.Boolean, nullable=False, default=False)
 
 
-@event.listens_for(TermGroup, 'before_insert')
-def term_before_insert(mapper, connection, target):
-    """
-    Fails the `insert` if the given `group_id` doesn't match the Term's Subject.groups ids
-    """
-    import ipdb
-    ipdb.set_trace()
+class Setting(db.Model):
+    __tablename__ = 'settings'
+    name = db.Column(db.String, primary_key=True)
+    value = db.Column(db.String, primary_key=True)
 
 
 @auth.verify_password
