@@ -73,7 +73,6 @@ module.exports = {
       'vendor/bootstrap/dist/js/bootstrap.js'
     ],
     css: [
-      'vendor/bootstrap/dist/css/bootstrap.css'
     ],
     assets: [
     ]

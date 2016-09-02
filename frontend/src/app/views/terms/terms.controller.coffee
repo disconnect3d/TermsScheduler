@@ -3,6 +3,8 @@ angular.module('TermsScheduler').controller 'TermsController', [
   'TermsService'
   'FlashService'
   ($scope, TermsService, FlashService) ->
+    $scope.label = (n)-> return if n == -1 then 'Impossible' else n
+
     TermsService.Get().then(
       (terms)->
         $scope.terms = terms
