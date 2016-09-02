@@ -8,9 +8,10 @@ from sqlalchemy import func
 from termcolor import colored, cprint
 
 from application import create_app, db
-# use dev config if env var is not set
+from application.utils import logsql
 from commands.add_dev_data import AddDevData
 from commands.create_admin import CreateAdmin
+from commands.runserver import Runserver
 
 config_file_path = os.environ.get('APP_CONFIG', None) or '../dev_config.py'
 
@@ -22,20 +23,7 @@ migrate = Migrate(app, db)
 manager.add_command('db', MigrateCommand)
 manager.add_command('create_admin', CreateAdmin())
 manager.add_command('add_dev_data', AddDevData())
-
-
-def logsql():
-    """
-    Enables/disables logging of SQLALchemy sql queries.
-    """
-    import logging
-    logging.basicConfig()
-    logger = logging.getLogger('sqlalchemy.engine')
-
-    if logger.level == logging.NOTSET:
-        logger.setLevel(logging.INFO)
-    else:
-        logger.setLevel(logging.NOTSET)
+manager.add_command('runserver', Runserver())
 
 
 def _make_context():
