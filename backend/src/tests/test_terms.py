@@ -43,8 +43,8 @@ def terms(db, subjects, groups):
     return terms
 
 
-@pytest.fixture(scope='session')
-def url_termsignup():
+@pytest.fixture
+def url_termsignup(db_settings):
     return url_for('termsignupaction')
 
 

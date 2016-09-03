@@ -29,13 +29,13 @@ def user2_with_subject_signups(user2, subjects, db):
     db.session.commit()
 
 
-@pytest.fixture(scope='session')
-def url_get_subjects():
+@pytest.fixture
+def url_get_subjects(db_settings):
     return url_for('subjectlist')
 
 
-@pytest.fixture(scope='session')
-def url_subjectsignup():
+@pytest.fixture
+def url_subjectsignup(db_settings):
     return url_for('subjectsignuplist')
 
 

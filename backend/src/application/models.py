@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from flask import g, current_app as app
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
@@ -173,6 +175,16 @@ class Setting(db.Model):
     __tablename__ = 'settings'
     name = db.Column(db.String, primary_key=True)
     value = db.Column(db.String, primary_key=True)
+
+    def __json__(self):
+        return ('name', 'value')
+
+    @staticmethod
+    def get_from_db():
+        fields = list(sorted(app.config['SETTINGS_IN_DB']))
+
+        mapping = {k: v for k, v in zip(fields, Setting.query.order_by(Setting.name))}
+        return namedtuple('DBSettings', fields)(**mapping)
 
 
 @auth.verify_password

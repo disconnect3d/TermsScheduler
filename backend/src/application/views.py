@@ -89,6 +89,10 @@ class SubjectSignupList(Resource):
         return jsonify({'subjects_signup': ss})
 
     def post(self):
+        opts = Setting.get_from_db()
+        if not opts.SUBJECTS_SIGNUP:
+            abort(400, message='Subjects signup is disabled.')
+
         args = subject_signup_parser.parse_args(strict=True)
 
         if g.user.has_subject(args.subject_id):
@@ -202,6 +206,10 @@ class TermSignupAction(Resource):
             ]
         }
         """
+        opts = Setting.get_from_db()
+        if not opts.TERMS_SIGNUP:
+            abort(400, message='Terms signup is disabled.')
+
         SubjectSignup.query.filter(SubjectSignup.user_id == g.user.id).delete()
         db.session.commit()
 
