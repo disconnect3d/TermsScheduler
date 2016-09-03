@@ -15,7 +15,20 @@ angular.module('TermsScheduler').controller 'TermsController', [
     $scope.save = ()->
       $scope.termSubscriptions
       TermsService.SaveTermsSignup(
-        $scope.termSubscriptions.map((term, id)-> term.term_id = id; return term)
-      ).then(null, (error)-> FlashService.Error(error))
+        $scope.termSubscriptions.map((term, id)->
+          if term.points > -1
+            term.reason = ''
+          term.term_id = id
+          return term)
+      ).then(
+        ()->
+          $scope.success = true
+          $scope.message = "Your terms are saved"
+          $('#resultModal').modal('show', {keyboard: true})
+        (error)->
+          $scope.success = false
+          $scope.message = error
+          $('#resultModal').modal('show', {keyboard: true})
+      )
     return
 ]

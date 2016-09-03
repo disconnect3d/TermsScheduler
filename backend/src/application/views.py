@@ -214,7 +214,7 @@ class TermSignupAction(Resource):
         if not opts.TERMS_SIGNUP:
             abort(400, message='Terms signup is disabled.')
 
-        SubjectSignup.query.filter(SubjectSignup.user_id == g.user.id).delete()
+        TermSignup.query.filter(TermSignup.user_id == g.user.id).delete()
         db.session.commit()
 
         # TODO / FIXME : use something better than hand made json validation
