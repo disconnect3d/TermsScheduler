@@ -202,10 +202,11 @@ class TermSignupAction(Resource):
             ]
         }
         """
+        SubjectSignup.query.filter(SubjectSignup.user_id == g.user.id).delete()
+        db.session.commit()
 
         # TODO / FIXME : use something better than hand made json validation
         # RequestParser can't really handle nested jsons well, maybe flask-marshmallow?
-
         terms_signup = []
         term_ids = []
         try:
