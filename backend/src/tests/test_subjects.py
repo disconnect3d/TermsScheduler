@@ -2,7 +2,7 @@ import pytest
 from flask import json
 from flask import url_for
 
-from application.models import SubjectSignup
+from application.models import SubjectSignup, Setting
 from tests.conftest import calc_auth_header_value
 
 
@@ -126,6 +126,19 @@ def test_post_subject_signup_user_with_groups(url_subjectsignup, auth_header1, u
 
     assert res.status_code == 200
     assert res.json == {'signed': {'subject_id': 1, 'user_id': 1}}
+
+
+def test_post_subject_signup_disabled_signup(url_subjectsignup, auth_header1, user1_with_2_groups, subjects, db, client):
+    db.session.query(Setting). \
+        filter(Setting.name == Setting.SUBJECTS_SIGNUP). \
+        update({Setting.value: '0'})
+    db.session.commit()
+
+    res = client.post(url_subjectsignup, data=json.dumps({'subject_id': 1}), headers=[auth_header1],
+                      content_type='application/json')
+
+    assert res.status_code == 400
+    assert res.json == {'message': "Subjects signup is disabled."}
 
 
 def test_post_subject_signup_user_with_groups_no_space_for_subject(

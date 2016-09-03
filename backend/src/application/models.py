@@ -177,14 +177,28 @@ class Setting(db.Model):
     value = db.Column(db.String, primary_key=True)
 
     def __json__(self):
-        return ('name', 'value')
+        return 'name', 'value'
 
     @staticmethod
     def get_from_db():
         fields = list(sorted(app.config['SETTINGS_IN_DB']))
 
-        mapping = {k: v for k, v in zip(fields, Setting.query.order_by(Setting.name))}
+        mapping = {k: v.value for k, v in zip(fields, Setting.query.order_by(Setting.name))}
+
+        mapping[Setting.SUBJECTS_SIGNUP] = mapping[Setting.SUBJECTS_SIGNUP] == '1'
+        mapping[Setting.TERMS_SIGNUP] = mapping[Setting.TERMS_SIGNUP] == '1'
+        mapping[Setting.SHOW_TERMS_RESULTS] = mapping[Setting.SHOW_TERMS_RESULTS] == '1'
+
         return namedtuple('DBSettings', fields)(**mapping)
+
+    # This is here just for code completion...
+    MAX_PTS_PER_TERM = 'MAX_PTS_PER_TERM'
+    PTS_FOR_ALL = 'PTS_FOR_ALL'
+    PTS_PER_SUB = 'PTS_PER_SUB'
+    PTS_PER_TERM = 'PTS_PER_TERM'
+    SHOW_TERMS_RESULTS = 'SHOW_TERMS_RESULTS'
+    SUBJECTS_SIGNUP = 'SUBJECTS_SIGNUP'
+    TERMS_SIGNUP = 'TERMS_SIGNUP'
 
 
 @auth.verify_password
