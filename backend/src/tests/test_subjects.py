@@ -138,7 +138,7 @@ def test_post_subject_signup_disabled_signup(url_subjectsignup, auth_header1, us
                       content_type='application/json')
 
     assert res.status_code == 400
-    assert res.json == {'message': "Subjects signup is disabled."}
+    assert res.json == {'message': "Can't enroll on subject - signup is disabled."}
 
 
 def test_post_subject_signup_user_with_groups_no_space_for_subject(

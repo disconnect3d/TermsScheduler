@@ -91,7 +91,7 @@ class SubjectSignupList(Resource):
     def post(self):
         opts = Setting.get_from_db()
         if not opts.SUBJECTS_SIGNUP:
-            abort(400, message='Subjects signup is disabled.')
+            abort(400, message="Can't enroll on subject - signup is disabled.")
 
         args = subject_signup_parser.parse_args(strict=True)
 
@@ -115,6 +115,10 @@ class SubjectSignupList(Resource):
 
 class SubjectSignupResource(Resource):
     def delete(self, subject_id):
+        #opts = Setting.get_from_db()
+        # if not opts.SUBJECTS_SIGNUP:
+        #     abort(400, message="Can't drop from subject - signup is disabled.")
+
         if g.user.has_subject(subject_id):
             SubjectSignup.query.filter(SubjectSignup.subject_id == subject_id,
                                        SubjectSignup.user_id == g.user.id).delete(synchronize_session=False)

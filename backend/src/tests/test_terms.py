@@ -4,7 +4,7 @@ from flask import json
 from flask import url_for
 
 from application.enums import TermType, Day
-from application.models import Subject, SubjectSignup, Term, TermSignup
+from application.models import Subject, SubjectSignup, Term, TermSignup, Setting
 
 
 @pytest.fixture
@@ -161,3 +161,15 @@ def test_post_terms_for_user_with_groups_all_terms(url_termsignup, terms, db, au
         assert db_ts.reason == reason
         assert db_ts.reason_accepted is False
         assert db_ts.is_assigned is False
+
+
+def test_post_terms_disabled_signup(url_termsignup, auth_header1, user1_with_2_groups, subjects, db, client):
+    db.session.query(Setting). \
+        filter(Setting.name == Setting.TERMS_SIGNUP). \
+        update({Setting.value: '0'})
+    db.session.commit()
+
+    res = client.post(url_termsignup, headers=[auth_header1], data=json.dumps({}), content_type='application/json')
+
+    assert res.status_code == 400
+    assert res.json == {'message': "Terms signup is disabled."}
