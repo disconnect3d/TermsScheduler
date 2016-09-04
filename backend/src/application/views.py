@@ -115,15 +115,18 @@ class SubjectSignupList(Resource):
 
 class SubjectSignupResource(Resource):
     def delete(self, subject_id):
-        #opts = Setting.get_from_db()
-        # if not opts.SUBJECTS_SIGNUP:
-        #     abort(400, message="Can't drop from subject - signup is disabled.")
+        opts = Setting.get_from_db()
+        if not opts.SUBJECTS_SIGNUP:
+             abort(400, message="Can't drop from subject - signup is disabled.")
 
         if g.user.has_subject(subject_id):
-            SubjectSignup.query.filter(SubjectSignup.subject_id == subject_id,
-                                       SubjectSignup.user_id == g.user.id).delete(synchronize_session=False)
+            SubjectSignup.query.filter(
+                SubjectSignup.subject_id == subject_id, SubjectSignup.user_id == g.user.id
+            ).delete(synchronize_session=False)
+
             db.session.expire_all()
             db.session.commit()
+
             return {}
 
         abort(400, message="Can't delete subject you are not signed on.")

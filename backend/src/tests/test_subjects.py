@@ -163,20 +163,20 @@ def test_post_subject_signup_user_with_groups_no_space_for_subject(
     assert res.json == {'message': 'There is no space left on subject 1.'}
 
 
-def test_delete_subject_signup_unauthorized(db, client):
+def test_delete_subject_signup_unauthorized(db, db_settings, client):
     res = client.delete(url_for('subjectsignupresource', subject_id=1))
 
     assert res.status_code == 401
 
 
-def test_delete_subject_signup_doesnt_exist(db, auth_header1, client):
+def test_delete_subject_signup_doesnt_exist(auth_header1, db, db_settings, client):
     res = client.delete(url_for('subjectsignupresource', subject_id=1), headers=[auth_header1])
 
     assert res.status_code == 400
     assert res.json == {'message': "Can't delete subject you are not signed on."}
 
 
-def test_delete_subject_signup_deleted(create_subject_signup_for_user, auth_header1, subjects, db, client):
+def test_delete_subject_signup_deleted(create_subject_signup_for_user, auth_header1, subjects, db, db_settings, client):
     create_subject_signup_for_user(user_id=1, subject_ids=[1])
 
     res = client.delete(url_for('subjectsignupresource', subject_id=1), headers=[auth_header1])
