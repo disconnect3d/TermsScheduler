@@ -5,7 +5,6 @@ from flask import url_for
 from flask.ext.restful import Resource, Api
 
 from application.decorators import public_endpoint, require_admin
-from application.models import Group
 from tests.conftest import calc_auth_header_value
 
 
@@ -103,7 +102,7 @@ def test_get_user_unauthorized(db, client):
 
 
 def test_get_user_authorized(auth_header1, db, client):
-    res = client.get(url_for('userresource', id=1),  headers=[auth_header1])
+    res = client.get(url_for('userresource', id=1), headers=[auth_header1])
     assert res.status_code == 200
     assert res.json == {
         'id': 1,
@@ -153,27 +152,3 @@ def test_get_groups_user_with_groups(url_grouplist, user1_with_2_groups, auth_he
 
     assert res.status_code == 200
     assert res.json == {u'groups': [u'group1', u'group2']}
-
-
-def test_new_group_require_admin(url_grouplist, auth_header1, client):
-    res = client.post(url_grouplist, headers=[auth_header1],
-                      data=json.dumps({'name': 'test_group'}),
-                      content_type='application/json')
-    assert res.status_code == 401
-
-
-def test_new_group_create(url_grouplist, admin_auth_header, db, client):
-    group_name = 'test_group'
-
-    assert Group.query.count() == 0
-
-    res = client.post(url_grouplist, headers=[admin_auth_header],
-                      data=json.dumps({'name': group_name}),
-                      content_type='application/json')
-
-    assert res.status_code == 201
-    assert res.json == {}
-
-    groups = Group.query.all()
-    assert len(groups) == 1
-    assert groups[0].name == group_name

@@ -4,8 +4,8 @@ from flask.ext.restful import abort, Resource, reqparse
 from sqlalchemy import func
 
 from application import db
-from application.decorators import public_endpoint, require_admin
-from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term, TermGroup, Setting
+from application.decorators import public_endpoint
+from application.models import User, Subject, SubjectSignup, TermSignup, Term, TermGroup, Setting
 from application.utils import DefaultOrderedDict
 
 bp = Blueprint('api', __name__)
@@ -60,15 +60,6 @@ class UserResource(Resource):
 class GroupList(Resource):
     def get(self):
         return jsonify({'groups': [grp.name for grp in g.user.groups]})
-
-    @require_admin
-    def post(self):
-        name = request.get_json()['name']
-
-        db.session.add(Group(name=name))
-        db.session.commit()
-
-        return {}, 201
 
 
 class SubjectList(Resource):
