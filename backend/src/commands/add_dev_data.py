@@ -112,7 +112,7 @@ class AddDevData(Command):
                     'value': '1'
                 },
                 {
-                    'name': 'SHOW_TERM_RESULTS',
+                    'name': 'SHOW_TERMS_RESULTS',
                     'value': '0'
                 },
 
