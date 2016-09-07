@@ -4,9 +4,6 @@ angular.module('TermsScheduler', [
   'templates-common',
   'ui.router'
 ])
-.constant("settings", {
-  backendUrl: "http://localhost:5000/api/"
-})
 .config(($stateProvider, $urlRouterProvider) ->
   # Can't inject it here
   cap = (string) -> string.charAt(0).toUpperCase() + string.slice(1)
