@@ -3,6 +3,7 @@ from flask.ext.admin import Admin
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.restful import Api
+from flask.ext.restful.utils import cors
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
 
@@ -35,6 +36,15 @@ def create_app(config):
     from application.views import UserList, UserResource, GroupList, SubjectList, SubjectSignupList, \
         SubjectSignupResource, TermSignupAction, SettingList
 
+    api.decorators = [
+        cors.crossdomain(
+            origin=app.config['CORS_ORIGINS'],
+            methods=['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
+            attach_to_all=True,
+            automatic_options=True
+        )
+    ]
+    
     api.add_resource(UserList, '/api/users')
     api.add_resource(UserResource, '/api/users/<int:id>')
     api.add_resource(GroupList, '/api/groups')
@@ -56,6 +66,8 @@ def create_app(config):
     admin.add_view(TermSignupAdminView(TermSignup, db.session))
     admin.add_view(SettingAdminView(Setting, db.session))
 
-    CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}})
+
+    # TODO/FIXME: Delete below after removing `bp_auth`
+    # CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}})
 
     return app
