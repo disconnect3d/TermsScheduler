@@ -104,33 +104,33 @@ class AddDevData(Command):
             Setting.__table__.insert(),
             [
                 {
-                    'name': 'SUBJECTS_SIGNUP',
+                    'name': Setting.SUBJECTS_SIGNUP,
                     'value': '1'
                 },
                 {
-                    'name': 'TERMS_SIGNUP',
+                    'name': Setting.TERMS_SIGNUP,
                     'value': '1'
                 },
                 {
-                    'name': 'SHOW_TERMS_RESULTS',
+                    'name': Setting.SHOW_TERMS_RESULTS,
                     'value': '0'
                 },
 
-                ## Terms signup related
+                # Terms signup related
                 {
-                    'name': 'PTS_FOR_ALL',  # Punkty dostępne dla wszystkich przedmiotów
+                    'name': Setting.PTS_FOR_ALL,  # Punkty dostępne dla wszystkich przedmiotów
                     'value': '14'
                 },
                 {
-                    'name': 'PTS_PER_SUB',  # Punkty dostępne dla pojedynczego przedmiotu
+                    'name': Setting.PTS_PER_SUB,  # Punkty dostępne dla pojedynczego przedmiotu
                     'value': '15'
                 },
                 {
-                    'name': 'PTS_PER_TERM',  # Punkty dostępne dla pojedynczego terminu
+                    'name': Setting.PTS_PER_TERM,  # Punkty dostępne dla pojedynczego terminu
                     'value': '10'
                 },
                 {
-                    'name': 'MAX_PTS_PER_TERM',
+                    'name': Setting.MAX_PTS_PER_TERM,
                     'value': '10'
                 },
             ]
