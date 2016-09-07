@@ -24,7 +24,7 @@ angular.module('TermsScheduler', [
   $urlRouterProvider.otherwise('/home')
 )
 
-.run(($rootScope, $location, $cookieStore, $http) ->
+.run(($rootScope, $location, $cookieStore, $http, $state) ->
   $rootScope.globals = $cookieStore.get('globals') || {}
   if $rootScope.globals.currentUser
     $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata
@@ -32,17 +32,30 @@ angular.module('TermsScheduler', [
 
   $rootScope.$on('$locationChangeStart', (event, next, current) ->
     # redirect to login page if not logged in and trying to access a restricted page
-    restrictedPage = ['/login', '/register'].indexOf($location.path()) == -1
+    restrictedPage = $location.path() in ['/login', '/register']
     loggedIn = $rootScope.globals.currentUser
     if restrictedPage && !loggedIn
       $location.path('/login')
   )
-)
 
+  $rootScope.$on('$stateChangeStart', (event, toState, toParams, fromState, fromParams)->
+    if $rootScope.statesEnabled? && $rootScope.statesEnabled[toState.name]? && !$rootScope.statesEnabled[toState.name]
+      event.preventDefault()
+  )
+)
 .controller('AppCtrl', [
+  '$rootScope'
   '$scope'
   'utils'
-  ($scope, utils) ->
+  'settings'
+  ($rootScope, $scope, utils, settings) ->
+    settings.settingsPromise.then(()->
+      $rootScope.statesEnabled = {
+        'subjects': settings.SUBJECTS_SIGNUP == 1
+        'terms': settings.TERMS_SIGNUP == 1
+      }
+    )
+
     $scope.pageTitle = 'Terms Scheduler'
     $scope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) ->
       if angular.isDefined(toState.name)

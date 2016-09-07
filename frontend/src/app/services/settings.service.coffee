@@ -11,7 +11,7 @@
     settings.settingsPromise = $http.get(settings.backendUrl + 'settings').then(
       (response) ->
         for setting in response.data.settings
-          settings[setting.name] = setting.value
+          settings[setting.name] = parseInt(setting.value)
         return settings
       utils.handleError('Fetching settings failed')
     ).catch((error)-> FlashService.Error(error))

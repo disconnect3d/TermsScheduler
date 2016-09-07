@@ -2,8 +2,12 @@ angular.module('TermsScheduler').controller 'TermsController', [
   '$scope'
   'TermsService'
   'FlashService'
-  ($scope, TermsService, FlashService) ->
+  'settings'
+  ($scope, TermsService, FlashService, settings) ->
     $scope.label = (n)-> return if n == -1 then 'Impossible' else n
+    settings.settingsPromise.then(()->
+      $scope.options = [ -1 ... settings.MAX_PTS_PER_TERM + 1 ]
+    )
 
     TermsService.Get().then(
       (terms)->
