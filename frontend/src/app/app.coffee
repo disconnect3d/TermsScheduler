@@ -57,7 +57,11 @@ angular.module('TermsScheduler', [
         'termsResults': settings.SHOW_TERM_RESULTS == 1
       }
     )
-
+    $scope.navigationStates = [
+      {name: 'subjects', title: 'Subjects'}
+      {name: 'terms', title: 'Terms'}
+      {name: 'termsResults', title: 'Results'}
+    ]
     $scope.pageTitle = 'Terms Scheduler'
     $scope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) ->
       if angular.isDefined(toState.name)

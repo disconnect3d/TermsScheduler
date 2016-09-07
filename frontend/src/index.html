@@ -62,9 +62,9 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="navbar">
                 <ul class="nav navbar-nav">
-                    <li ng-class="{disabled: !statesEnabled['subjects']}"><a ui-sref="subjects">Subjects</a></li>
-                    <li ng-class="{disabled: !statesEnabled['terms']}"><a ui-sref="terms">Terms</a></li>
-                    <li ng-class="{disabled: !statesEnabled['termsResults']}"><a ui-sref="termsResults">Results</a></li>
+                    <li ng-repeat="state in navigationStates" ng-class="{disabled: !statesEnabled[state.name]}">
+                        <a ui-sref="{{state.name}}">{{state.title}}</a>
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown" ng-show="globals.currentUser.username">
