@@ -1,0 +1,13 @@
+<div class="termsResults">
+    <ul class="list-group">
+        <li ng-repeat="subject in terms" class="list-group-item">
+            <h3 class="list-group-item-heading">{{subject.subject_name}}</h3>
+            <table class="table">
+                <tr ng-repeat="classType in subject.classes">
+                    <td>{{classType.name}}</td>
+                    <td>{{classType.term.day}} {{classType.term.time_from}}-{{classType.term.time_to}}</td>
+                </tr>
+            </table>
+        </li>
+    </ul>
+</div>

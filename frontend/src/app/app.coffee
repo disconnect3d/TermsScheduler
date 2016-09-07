@@ -21,6 +21,7 @@ angular.module('TermsScheduler', [
   state($stateProvider, 'subjects')
   state($stateProvider, 'user')
   state($stateProvider, 'terms')
+  state($stateProvider, 'termsResults')
   $urlRouterProvider.otherwise('/home')
 )
 
@@ -53,6 +54,7 @@ angular.module('TermsScheduler', [
       $rootScope.statesEnabled = {
         'subjects': settings.SUBJECTS_SIGNUP == 1
         'terms': settings.TERMS_SIGNUP == 1
+        'terms': settings.SHOW_TERM_RESULTS == 1
       }
     )
 

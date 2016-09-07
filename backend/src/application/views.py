@@ -150,7 +150,7 @@ class TermSignupAction(Resource):
         """
         fields = (
             Subject.name, Term.type, Term.id, Term.day, Term.time_from, Term.time_to,
-            TermSignup.points, TermSignup.reason, TermSignup.reason_accepted
+            TermSignup.points, TermSignup.reason, TermSignup.reason_accepted, TermSignup.is_assigned
         )
 
         res = db.session.query(*fields) \
