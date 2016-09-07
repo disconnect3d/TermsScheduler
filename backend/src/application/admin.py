@@ -2,7 +2,7 @@ from flask_admin.form import SecureForm
 from flask_admin.contrib.sqla import ModelView
 from wtforms import PasswordField
 
-from application.models import User, Term, TermSignup
+from application.models import User, Term, TermSignup, Setting
 
 
 class UserAdminView(ModelView):
@@ -47,3 +47,7 @@ class TermSignupAdminView(ModelView):
         TermSignup.reason, TermSignup.reason_accepted, TermSignup.reason_accepted_by,
         TermSignup.is_assigned
     )
+
+
+class SettingAdminView(ModelView):
+    column_display_pk = True

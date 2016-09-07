@@ -46,7 +46,7 @@ def create_app(config):
 
     # Admin panel
     from application.models import User, Group, Subject, Term, TermSignup, Setting
-    from application.admin import UserAdminView, SubjectAdminView, TermAdminView, TermSignupAdminView
+    from application.admin import UserAdminView, SubjectAdminView, TermAdminView, TermSignupAdminView, SettingAdminView
 
     admin = Admin(app)
     admin.add_view(UserAdminView(User, db.session))
@@ -54,7 +54,7 @@ def create_app(config):
     admin.add_view(SubjectAdminView(Subject, db.session))
     admin.add_view(TermAdminView(Term, db.session))
     admin.add_view(TermSignupAdminView(TermSignup, db.session))
-    admin.add_view(ModelView(Setting, db.session))
+    admin.add_view(SettingAdminView(Setting, db.session))
 
     CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}})
 
