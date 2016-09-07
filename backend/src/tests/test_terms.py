@@ -74,11 +74,11 @@ def test_get_terms_for_user_with_groups(url_termsignup, terms, db, auth_header1,
                         'term_type': 'Laboratory',
                         'terms': [
                             {'id': 1, 'day': 'Monday', 'time_from': '08:30', 'time_to': '10:00',
-                             'points': 0, 'reason': '', 'reason_accepted': False},
+                             'points': 0, 'reason': '', 'reason_accepted': False, 'is_assigned': None},
                             {'id': 2, 'day': 'Tuesday', 'time_from': '09:30', 'time_to': '11:00',
-                             'points': 0, 'reason': '', 'reason_accepted': False},
+                             'points': 0, 'reason': '', 'reason_accepted': False, 'is_assigned': None},
                             {'id': 3, 'day': 'Wednesday', 'time_from': '08:30', 'time_to': '10:00',
-                             'points': 0, 'reason': '', 'reason_accepted': False}
+                             'points': 0, 'reason': '', 'reason_accepted': False, 'is_assigned': None}
                         ]
                     }
                 ]
@@ -90,7 +90,7 @@ def test_get_terms_for_user_with_groups(url_termsignup, terms, db, auth_header1,
                         'term_type': 'Laboratory',
                         'terms': [
                             {'id': 5, 'day': 'Tuesday', 'time_from': '19:00', 'time_to': '21:00',
-                             'points': 0, 'reason': '', 'reason_accepted': False}
+                             'points': 0, 'reason': '', 'reason_accepted': False, 'is_assigned': None}
                         ]
                     }
                 ]
@@ -158,7 +158,8 @@ def terms_signup_json():
     }
 
 
-def test_post_terms_for_user_with_groups_all_terms(url_termsignup, terms_signup_json, terms, db, auth_header1, user1_with_1_group, client):
+def test_post_terms_for_user_with_groups_all_terms(url_termsignup, terms_signup_json, terms, db, auth_header1,
+                                                   user1_with_1_group, client):
     res = client.post(url_termsignup, headers=[auth_header1], data=json.dumps(terms_signup_json),
                       content_type='application/json')
 
@@ -178,7 +179,8 @@ def test_post_terms_for_user_with_groups_all_terms(url_termsignup, terms_signup_
         assert db_ts.is_assigned is False
 
 
-def test_post_terms_override_signup(url_termsignup, terms_signup_json, terms, auth_header1, user1_with_1_group, db, client):
+def test_post_terms_override_signup(url_termsignup, terms_signup_json, terms, auth_header1, user1_with_1_group, db,
+                                    client):
     # Adding Signups to DB
     def create_ts(*args, **kwargs):
         return TermSignup(user_id=1, **kwargs)
