@@ -52,7 +52,7 @@ angular.module('TermsScheduler', [
       $rootScope.statesEnabled = {
         'subjects': settings.SUBJECTS_SIGNUP == 1
         'terms': settings.TERMS_SIGNUP == 1
-        'termsResults': settings.SHOW_TERM_RESULTS == 1
+        'termsResults': settings.SHOW_TERMS_RESULTS == 1
       }
     )
     $scope.navigationStates = [

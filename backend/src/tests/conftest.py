@@ -31,7 +31,7 @@ def db_settings(db):
         [
             {'name': 'SUBJECTS_SIGNUP', 'value': '1'},
             {'name': 'TERMS_SIGNUP', 'value': '1'},
-            {'name': 'SHOW_TERM_RESULTS', 'value': '0'},
+            {'name': 'SHOW_TERMS_RESULTS', 'value': '0'},
 
             ## Terms signup related
             # Punkty dostępne dla wszystkich przedmiotów
