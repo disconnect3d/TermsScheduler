@@ -129,6 +129,9 @@ class Subject(db.Model):
     project_hours = db.Column(db.Integer, nullable=False, default=0)
     seminar_hours = db.Column(db.Integer, nullable=False, default=0)
 
+    def __repr__(self):
+        return "{name} (ects: {ects})".format(**self.__dict__)
+
 
 class SubjectGroup(db.Model):
     __tablename__ = 'subjects_groups'
@@ -150,6 +153,12 @@ class Term(db.Model):
     day = db.Column(db.Enum(Day), nullable=False)
     time_from = db.Column(db.Time, nullable=False)
     time_to = db.Column(db.Time, nullable=False)
+    subject = db.relationship(Subject, backref='terms')
+
+    def __repr__(self):
+        return "{subject_name} {type} ({day} {time_from}-{time_to})".format(
+            **self.__dict__, subject_name=self.subject.name
+        )
 
 
 class TermGroup(db.Model):
@@ -199,6 +208,9 @@ class Setting(db.Model):
     SHOW_TERMS_RESULTS = 'SHOW_TERMS_RESULTS'
     SUBJECTS_SIGNUP = 'SUBJECTS_SIGNUP'
     TERMS_SIGNUP = 'TERMS_SIGNUP'
+
+    def __repr__(self):
+        return "{name}: {value}".format(**self.__dict__)
 
 
 @auth.verify_password
