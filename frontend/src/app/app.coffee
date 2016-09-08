@@ -25,21 +25,19 @@ angular.module('TermsScheduler', [
   $urlRouterProvider.otherwise('/home')
 )
 
-.run(($rootScope, $location, $cookieStore, $http, $state) ->
+.run(($rootScope, $state, $cookieStore, $http) ->
   $rootScope.globals = $cookieStore.get('globals') || {}
   if $rootScope.globals.currentUser
     $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata
 
-
-  $rootScope.$on('$locationChangeStart', (event, next, current) ->
+  $rootScope.$on('$stateChangeStart', (event, toState, toParams, fromState, fromParams)->
     # redirect to login page if not logged in and trying to access a restricted page
-    restrictedPage = $location.path() in ['/login', '/register']
+    restrictedPage = toState.name not in ['login', 'register']
     loggedIn = $rootScope.globals.currentUser
     if restrictedPage && !loggedIn
-      $location.path('/login')
-  )
+      event.preventDefault()
+      $state.go('login')
 
-  $rootScope.$on('$stateChangeStart', (event, toState, toParams, fromState, fromParams)->
     if $rootScope.statesEnabled? && $rootScope.statesEnabled[toState.name]? && !$rootScope.statesEnabled[toState.name]
       event.preventDefault()
   )
