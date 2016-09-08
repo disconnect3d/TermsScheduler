@@ -11,7 +11,7 @@
       SetCredentials(username, password)
       $http.get(settings.backendUrl + 'login')
       .then(
-        (response) -> setUserData(response); callback(response),
+        (response) -> setUserData(response); callback(response); $rootScope.$broadcast('LoggedIn'),
         (response) -> FlashService.Error(response); errCallback(response)
       )
     setUserData = (response) ->

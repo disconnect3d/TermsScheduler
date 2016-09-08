@@ -4,7 +4,7 @@ from flask import json
 from flask import url_for
 
 from application.enums import TermType, Day
-from application.models import Subject, SubjectSignup, Term, TermSignup
+from application.models import Subject, SubjectSignup, Term, TermSignup, Setting
 
 
 @pytest.fixture
@@ -43,8 +43,8 @@ def terms(db, subjects, groups):
     return terms
 
 
-@pytest.fixture(scope='session')
-def url_termsignup():
+@pytest.fixture
+def url_termsignup(db_settings):
     return url_for('termsignupaction')
 
 
@@ -73,9 +73,12 @@ def test_get_terms_for_user_with_groups(url_termsignup, terms, db, auth_header1,
                     {
                         'term_type': 'Laboratory',
                         'terms': [
-                            {'id': 1, 'day': 'Monday', 'time_from': '08:30', 'time_to': '10:00'},
-                            {'id': 2, 'day': 'Tuesday', 'time_from': '09:30', 'time_to': '11:00'},
-                            {'id': 3, 'day': 'Wednesday', 'time_from': '08:30', 'time_to': '10:00'}
+                            {'id': 1, 'day': 'Monday', 'time_from': '08:30', 'time_to': '10:00',
+                             'points': 0, 'reason': '', 'reason_accepted': False, 'is_assigned': None},
+                            {'id': 2, 'day': 'Tuesday', 'time_from': '09:30', 'time_to': '11:00',
+                             'points': 0, 'reason': '', 'reason_accepted': False, 'is_assigned': None},
+                            {'id': 3, 'day': 'Wednesday', 'time_from': '08:30', 'time_to': '10:00',
+                             'points': 0, 'reason': '', 'reason_accepted': False, 'is_assigned': None}
                         ]
                     }
                 ]
@@ -86,7 +89,8 @@ def test_get_terms_for_user_with_groups(url_termsignup, terms, db, auth_header1,
                     {
                         'term_type': 'Laboratory',
                         'terms': [
-                            {'id': 5, 'day': 'Tuesday', 'time_from': '19:00', 'time_to': '21:00'}
+                            {'id': 5, 'day': 'Tuesday', 'time_from': '19:00', 'time_to': '21:00',
+                             'points': 0, 'reason': '', 'reason_accepted': False, 'is_assigned': None}
                         ]
                     }
                 ]
@@ -114,8 +118,21 @@ def test_post_terms_for_user_with_groups_missing_terms(
     assert res.json == {'message': 'Missing term_ids in terms_signups list.'}
 
 
-def test_post_terms_for_user_with_groups_all_terms(url_termsignup, terms, db, auth_header1, user1_with_1_group, client):
-    terms_signup_json = {
+def test_post_terms_disabled_signup(url_termsignup, auth_header1, user1_with_2_groups, subjects, db, client):
+    db.session.query(Setting). \
+        filter(Setting.name == Setting.TERMS_SIGNUP). \
+        update({Setting.value: '0'})
+    db.session.commit()
+
+    res = client.post(url_termsignup, headers=[auth_header1], data=json.dumps({}), content_type='application/json')
+
+    assert res.status_code == 400
+    assert res.json == {'message': "Terms signup is disabled."}
+
+
+@pytest.fixture
+def terms_signup_json():
+    return {
         'terms_signup': [
             {
                 'term_id': 1,
@@ -140,6 +157,9 @@ def test_post_terms_for_user_with_groups_all_terms(url_termsignup, terms, db, au
         ]
     }
 
+
+def test_post_terms_for_user_with_groups_all_terms(url_termsignup, terms_signup_json, terms, db, auth_header1,
+                                                   user1_with_1_group, client):
     res = client.post(url_termsignup, headers=[auth_header1], data=json.dumps(terms_signup_json),
                       content_type='application/json')
 
@@ -157,3 +177,32 @@ def test_post_terms_for_user_with_groups_all_terms(url_termsignup, terms, db, au
         assert db_ts.reason == reason
         assert db_ts.reason_accepted is False
         assert db_ts.is_assigned is False
+
+
+def test_post_terms_override_signup(url_termsignup, terms_signup_json, terms, auth_header1, user1_with_1_group, db,
+                                    client):
+    # Adding Signups to DB
+    def create_ts(*args, **kwargs):
+        return TermSignup(user_id=1, **kwargs)
+
+    ts = (
+        create_ts(term_id=1, points=9),
+        create_ts(term_id=2, points=9),
+        create_ts(term_id=3, points=9),
+        create_ts(term_id=5, points=9)
+    )
+
+    # Checking if there were no TS previously - just in case...
+    assert len(TermSignup.query.all()) == 0
+
+    db.session.add_all(ts)
+    db.session.commit()
+
+    # Checking if those signups are there - just in case.
+    assert len(TermSignup.query.all()) == 4
+    db.session.expire_all()
+
+    # Launching the other test because well, we need to do exactly the same here
+    test_post_terms_for_user_with_groups_all_terms(
+        url_termsignup, terms_signup_json, terms, db, auth_header1, user1_with_1_group, client
+    )

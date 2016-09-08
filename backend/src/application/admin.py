@@ -47,3 +47,8 @@ class TermSignupAdminView(ModelView):
         TermSignup.reason, TermSignup.reason_accepted, TermSignup.reason_accepted_by,
         TermSignup.is_assigned
     )
+
+
+class SettingAdminView(ModelView):
+    column_display_pk = True
+    form_columns = ('name', 'value')

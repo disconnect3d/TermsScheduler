@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from flask import g, current_app as app
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
@@ -127,6 +129,9 @@ class Subject(db.Model):
     project_hours = db.Column(db.Integer, nullable=False, default=0)
     seminar_hours = db.Column(db.Integer, nullable=False, default=0)
 
+    def __repr__(self):
+        return "{name} (ects: {ects})".format(**self.__dict__)
+
 
 class SubjectGroup(db.Model):
     __tablename__ = 'subjects_groups'
@@ -148,6 +153,12 @@ class Term(db.Model):
     day = db.Column(db.Enum(Day), nullable=False)
     time_from = db.Column(db.Time, nullable=False)
     time_to = db.Column(db.Time, nullable=False)
+    subject = db.relationship(Subject, backref='terms')
+
+    def __repr__(self):
+        return "{subject_name} {type} ({day} {time_from}-{time_to})".format(
+            **self.__dict__, subject_name=self.subject.name
+        )
 
 
 class TermGroup(db.Model):
@@ -173,6 +184,33 @@ class Setting(db.Model):
     __tablename__ = 'settings'
     name = db.Column(db.String, primary_key=True)
     value = db.Column(db.String, primary_key=True)
+
+    def __json__(self):
+        return 'name', 'value'
+
+    @staticmethod
+    def get_from_db():
+        fields = list(sorted(app.config['SETTINGS_IN_DB']))
+
+        mapping = {k: v.value for k, v in zip(fields, Setting.query.order_by(Setting.name))}
+
+        mapping[Setting.SUBJECTS_SIGNUP] = mapping[Setting.SUBJECTS_SIGNUP] == '1'
+        mapping[Setting.TERMS_SIGNUP] = mapping[Setting.TERMS_SIGNUP] == '1'
+        mapping[Setting.SHOW_TERMS_RESULTS] = mapping[Setting.SHOW_TERMS_RESULTS] == '1'
+
+        return namedtuple('DBSettings', fields)(**mapping)
+
+    # This is here just for code completion...
+    MAX_PTS_PER_TERM = 'MAX_PTS_PER_TERM'
+    PTS_FOR_ALL = 'PTS_FOR_ALL'
+    PTS_PER_SUB = 'PTS_PER_SUB'
+    PTS_PER_TERM = 'PTS_PER_TERM'
+    SHOW_TERMS_RESULTS = 'SHOW_TERMS_RESULTS'
+    SUBJECTS_SIGNUP = 'SUBJECTS_SIGNUP'
+    TERMS_SIGNUP = 'TERMS_SIGNUP'
+
+    def __repr__(self):
+        return "{name}: {value}".format(**self.__dict__)
 
 
 @auth.verify_password

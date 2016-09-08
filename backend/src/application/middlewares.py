@@ -47,3 +47,28 @@ def require_login():
                 abort(401)
 
             return authorization
+
+
+def apply_cors_headers(response):
+    """
+    Plain CORS implementation. The `Allow-Methods` should be somehow dynamic. # TODO/FIXME
+    Didn't use Flask-Cors or Flask-Restful cors because it ... didn't work.
+
+    Tested on code:
+        * Flask-Restful:
+            api.decorators = [
+                cors.crossdomain(
+                    origin=app.config['CORS_ORIGINS'],
+                    methods=['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
+                    attach_to_all=True,
+                    automatic_options=True
+                )
+            ]
+
+        * Flask-Cors:
+            CORS(app, resources={r"*": {"origins": app.config['CORS_ORIGINS']}})
+    """
+    response.headers.add('Access-Control-Allow-Origin', current_app.config['CORS_ORIGINS'])
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    return response

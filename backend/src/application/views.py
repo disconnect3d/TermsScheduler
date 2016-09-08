@@ -4,8 +4,8 @@ from flask.ext.restful import abort, Resource, reqparse
 from sqlalchemy import func
 
 from application import db
-from application.decorators import public_endpoint, require_admin
-from application.models import User, Group, Subject, SubjectSignup, TermSignup, Term, TermGroup, Setting
+from application.decorators import public_endpoint
+from application.models import User, Subject, SubjectSignup, TermSignup, Term, TermGroup, Setting
 from application.utils import DefaultOrderedDict
 
 bp = Blueprint('api', __name__)
@@ -61,15 +61,6 @@ class GroupList(Resource):
     def get(self):
         return jsonify({'groups': [grp.name for grp in g.user.groups]})
 
-    @require_admin
-    def post(self):
-        name = request.get_json()['name']
-
-        db.session.add(Group(name=name))
-        db.session.commit()
-
-        return {}, 201
-
 
 class SubjectList(Resource):
     def get(self):
@@ -89,6 +80,10 @@ class SubjectSignupList(Resource):
         return jsonify({'subjects_signup': ss})
 
     def post(self):
+        opts = Setting.get_from_db()
+        if not opts.SUBJECTS_SIGNUP:
+            abort(400, message="Can't enroll on subject - signup is disabled.")
+
         args = subject_signup_parser.parse_args(strict=True)
 
         if g.user.has_subject(args.subject_id):
@@ -111,11 +106,18 @@ class SubjectSignupList(Resource):
 
 class SubjectSignupResource(Resource):
     def delete(self, subject_id):
+        opts = Setting.get_from_db()
+        if not opts.SUBJECTS_SIGNUP:
+             abort(400, message="Can't drop from subject - signup is disabled.")
+
         if g.user.has_subject(subject_id):
-            SubjectSignup.query.filter(SubjectSignup.subject_id == subject_id,
-                                       SubjectSignup.user_id == g.user.id).delete(synchronize_session=False)
+            SubjectSignup.query.filter(
+                SubjectSignup.subject_id == subject_id, SubjectSignup.user_id == g.user.id
+            ).delete(synchronize_session=False)
+
             db.session.expire_all()
             db.session.commit()
+
             return {}
 
         abort(400, message="Can't delete subject you are not signed on.")
@@ -146,8 +148,15 @@ class TermSignupAction(Resource):
             ]
         }
         """
-        fields = (Subject.name, Term.type, Term.id, Term.day, Term.time_from, Term.time_to)
-        res = db.session.query(*fields).join(Term).join(TermGroup) \
+        fields = (
+            Subject.name, Term.type, Term.id, Term.day, Term.time_from, Term.time_to,
+            TermSignup.points, TermSignup.reason, TermSignup.reason_accepted, TermSignup.is_assigned
+        )
+
+        res = db.session.query(*fields) \
+            .join(Term) \
+            .join(TermGroup) \
+            .outerjoin(TermSignup) \
             .filter(TermGroup.group_id.in_([i.id for i in g.user.groups])) \
             .order_by(Subject.name, Term.day, Term.time_from)
 
@@ -155,7 +164,16 @@ class TermSignupAction(Resource):
 
         for record in res:
             subject_name, term_type, *term_data = record
-            subjects_terms[subject_name][term_type].append(dict(zip(record._fields[2:], record[2:])))
+
+            term_data = dict(zip(record._fields[2:], record[2:]))
+
+            # If there is no matching TermSignup, set defaults
+            if term_data['points'] is None:
+                term_data['points'] = 0
+                term_data['reason'] = ''
+                term_data['reason_accepted'] = False
+
+            subjects_terms[subject_name][term_type].append(term_data)
 
         subjects_terms_aggregated = [
             {
@@ -186,10 +204,15 @@ class TermSignupAction(Resource):
             ]
         }
         """
+        opts = Setting.get_from_db()
+        if not opts.TERMS_SIGNUP:
+            abort(400, message='Terms signup is disabled.')
+
+        TermSignup.query.filter(TermSignup.user_id == g.user.id).delete()
+        db.session.commit()
 
         # TODO / FIXME : use something better than hand made json validation
         # RequestParser can't really handle nested jsons well, maybe flask-marshmallow?
-
         terms_signup = []
         term_ids = []
         try:

@@ -4,7 +4,7 @@ import pytest
 
 from application import create_app
 from application import db as alchemy_db
-from application.models import User, Group, Subject
+from application.models import User, Group, Subject, Setting
 
 
 @pytest.fixture
@@ -22,6 +22,27 @@ def db(app):
     yield _db
     _db.session.rollback()
     _db.drop_all()
+
+
+@pytest.fixture
+def db_settings(db):
+    db.session.execute(
+        Setting.__table__.insert(),
+        [
+            {'name': 'SUBJECTS_SIGNUP', 'value': '1'},
+            {'name': 'TERMS_SIGNUP', 'value': '1'},
+            {'name': 'SHOW_TERM_RESULTS', 'value': '0'},
+
+            ## Terms signup related
+            # Punkty dostępne dla wszystkich przedmiotów
+            {'name': 'PTS_FOR_ALL', 'value': '14'},
+            # Punkty dostępne dla pojedynczego przedmiotu
+            {'name': 'PTS_PER_SUB', 'value': '15'},
+            # Punkty dostępne dla pojedynczego terminu
+            {'name': 'PTS_PER_TERM', 'value': '10'},
+            {'name': 'MAX_PTS_PER_TERM', 'value': '10'},
+        ]
+    )
 
 
 @pytest.fixture
